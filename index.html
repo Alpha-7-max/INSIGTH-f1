@@ -108,14 +108,16 @@
         const A4F_API_URL = "https://api.a4f.co/v1/images/generations";
         const A4F_MODEL_NAME = "provider-1/FLUX.1-kontext-pro";
 
-        // *** THE NEW, SIMPLIFIED MASTER PROMPT ***
         const MASTER_PROMPT = `You are 'Insight', a helpful and multi-modal AI assistant.
-- Your main goal is to have natural, helpful conversations.
-- For all conversational text, you MUST respond in Roman Urdu (Urdu written in the English alphabet).
-- If you decide to generate an image based on the conversation, the prompt for the image generation model must be in ENGLISH.
-- Your entire output MUST be ONLY a valid JSON object and nothing else. Do not add any text outside the JSON structure.
-- The JSON format is: { "text_response": "Your conversational reply in Roman Urdu.", "image_generation_prompt": "A detailed, single-paragraph prompt for the image AI in ENGLISH, or null if no image is needed." }`;
+- Your primary goal is to have natural, helpful conversations based on the entire chat history.
+- You MUST respond in Roman Urdu for all conversational text.
+- If you decide to generate an image, the prompt for that image must be in ENGLISH.
+- Your entire output MUST be ONLY a valid JSON object: { "text_response": "Your conversational reply in Roman Urdu.", "image_generation_prompt": "A detailed English prompt for the image AI, or null." }
 
+**Image Generation Rules:**
+1.  **If the user's request for an image is too general or vague** (e.g., 'car ki tasveer', 'ek larki'), DO NOT generate an image immediately. Instead, use your \`text_response\` to ask clarifying questions to get more details (e.g., 'Zaroor, kaisi car pasand karenge aap? Sportscar, classic, ya family car?'). In this case, the \`image_generation_prompt\` MUST be \`null\`.
+2.  **If the user provides sufficient detail** (e.g., 'a red Ferrari on a mountain road'), then create a detailed \`image_generation_prompt\` and your \`text_response\` should confirm that you are starting the generation (e.g., 'Theek hai, main is shandaar car ki tasveer bana raha hoon.').`;
+        
         const chatMessageContainerEl = document.querySelector('.chat-messages-container');
         const chatInputEl = document.getElementById('chatInput');
         const attachImageButtonEl = document.getElementById('attach-image-button');
@@ -130,52 +132,13 @@
         let isProcessing = false;
         
         function scrollToBottom() { if (messagesEndEl) messagesEndEl.scrollIntoView({ behavior: 'smooth' }); }
-        
-        function startNewChat() {
-            chatHistory = []; stagedImages = []; isProcessing = false;
-            chatMessageContainerEl.innerHTML = '<div id="messages-end" class="h-1"></div>';
-            messagesEndEl = document.getElementById('messages-end');
-            chatInputEl.innerHTML = ''; renderImagePills(); hideThinkingIndicator();
-        }
-
-        function addChatMessage(message, role, images = []) {
-            const wrapper = document.createElement('div');
-            wrapper.className = `flex w-full animate-fade-in-up opacity-0 ${role === 'user' ? 'justify-end' : 'justify-start'}`;
-            let gridHTML = '';
-            if (images.length > 0) { gridHTML = `<div class="grid gap-1 mb-1.5 ${images.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}">${images.map(img => `<div class="rounded-lg overflow-hidden group relative max-w-full w-full"><img src="${img.base64}" alt="attached image" class="block w-full max-h-60 object-contain rounded-lg"></div>`).join('')}</div>`; }
-            const bubble = document.createElement('div');
-            bubble.className = `px-4 py-3 shadow-card relative ${role === 'user' ? 'bg-surface-user-bubble-bg text-text-primary rounded-xl rounded-br-md max-w-[85%]' : 'bg-white text-text-secondary rounded-lg border border-slate-200 w-full'}`;
-            const para = document.createElement('p');
-            para.className = 'text-base font-normal whitespace-pre-wrap break-words';
-            para.innerHTML = message;
-            bubble.innerHTML = gridHTML;
-            bubble.appendChild(para);
-            wrapper.appendChild(bubble);
-            chatMessageContainerEl.insertBefore(wrapper, messagesEndEl);
-            scrollToBottom();
-            return bubble;
-        }
-
-        function showThinkingIndicator() { hideThinkingIndicator(); const i = `<div class="flex w-full justify-start animate-fade-in-up" id="dynamic-thinking-indicator"><div class="px-4 py-3 shadow-card bg-white rounded-lg border border-slate-200"><div class="flex items-center self-start"><span class="text-sm font-medium shimmer-black-text">thinking...</span></div></div></div>`; chatMessageContainerEl.insertBefore(document.createRange().createContextualFragment(i), messagesEndEl); scrollToBottom(); }
+        function startNewChat() { chatHistory = []; stagedImages = []; isProcessing = false; chatMessageContainerEl.innerHTML = '<div id="messages-end" class="h-1"></div>'; messagesEndEl = document.getElementById('messages-end'); chatInputEl.innerHTML = ''; renderImagePills(); hideThinkingIndicator(); }
+        function addChatMessage(message, role, images = []) { const w = document.createElement('div'); w.className = `flex w-full animate-fade-in-up opacity-0 ${role==='user'?'justify-end':'justify-start'}`; let g = ''; if (images.length > 0) g=`<div class="grid gap-1 mb-1.5 ${images.length>1?'grid-cols-2':'grid-cols-1'}">${images.map(i=>`<div class="rounded-lg overflow-hidden group relative max-w-full w-full"><img src="${i.base64}" alt="attached image" class="block w-full max-h-60 object-contain rounded-lg"></div>`).join('')}</div>`; const b = document.createElement('div'); b.className = `px-4 py-3 shadow-card relative ${role==='user'?'bg-surface-user-bubble-bg text-text-primary rounded-xl rounded-br-md max-w-[85%]':'bg-white text-text-secondary rounded-lg border border-slate-200 w-full'}`; const p = document.createElement('p'); p.className='text-base font-normal whitespace-pre-wrap break-words'; p.innerHTML=message; b.innerHTML=g; b.appendChild(p); w.appendChild(b); chatMessageContainerEl.insertBefore(w, messagesEndEl); scrollToBottom(); return b; }
+        function showThinkingIndicator(text = 'thinking...') { hideThinkingIndicator(); const i=`<div class="flex w-full justify-start animate-fade-in-up" id="dynamic-thinking-indicator"><div class="px-4 py-3 shadow-card bg-white rounded-lg border border-slate-200"><div class="flex items-center self-start"><span class="text-sm font-medium shimmer-black-text">${text}</span></div></div></div>`; chatMessageContainerEl.insertBefore(document.createRange().createContextualFragment(i), messagesEndEl); scrollToBottom(); }
         function hideThinkingIndicator() { const i = document.getElementById('dynamic-thinking-indicator'); if (i) i.remove(); }
-        
-        function renderImagePills() {
-            imagePillsContainerEl.innerHTML = '';
-            if (stagedImages.length > 0) {
-                imagePillsContainerEl.classList.remove('hidden'); imagePillsContainerEl.classList.add('image-preview-container-input');
-                stagedImages.forEach((img, index) => {
-                    const pill = document.createElement('div');
-                    pill.className = 'relative w-14 h-14 rounded-md overflow-hidden shadow-sm group border border-gray-200';
-                    pill.innerHTML = `<img src="${img.base64}" alt="${img.name}" class="w-full h-full object-cover"><button type="button" data-index="${index}" class="remove-pill absolute top-0.5 right-0.5 w-5 h-5 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center transition-opacity focus:outline-none"><svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 24 24" class="w-3 h-3" fill="currentColor"><path d="M13.414,12l6.293-6.293c0.391-0.391,0.391-1.023,0-1.414s-1.023-0.391-1.414,0L12,10.586L5.707,4.293 c-0.391-0.391-1.023-0.391-1.414,0s-0.391,1.023,0,1.414L10.586,12l-6.293,6.293c-0.391,0.391-0.391,1.023,0,1.414 C4.488,19.902,4.744,20,5,20s0.512-0.098,0.707-0.293L12,13.414l6.293,6.293C18.488,19.902,18.744,20,19,20s0.512-0.098,0.707-0.293 c0.391-0.391,0.391-1.023,0-1.414L13.414,12z"/></svg></button>`;
-                    imagePillsContainerEl.appendChild(pill);
-                });
-                imagePillsContainerEl.querySelectorAll('.remove-pill').forEach(btn => {
-                    btn.addEventListener('click', (e) => { const i = parseInt(e.currentTarget.dataset.index, 10); stagedImages.splice(i, 1); renderImagePills(); });
-                });
-            } else { imagePillsContainerEl.classList.add('hidden'); imagePillsContainerEl.classList.remove('image-preview-container-input'); }
-        }
-        
+        function renderImagePills() { imagePillsContainerEl.innerHTML = ''; if (stagedImages.length > 0) { imagePillsContainerEl.classList.remove('hidden'); imagePillsContainerEl.classList.add('image-preview-container-input'); stagedImages.forEach((img, index) => { const p=document.createElement('div'); p.className='relative w-14 h-14 rounded-md overflow-hidden shadow-sm group border border-gray-200'; p.innerHTML=`<img src="${img.base64}" alt="${img.name}" class="w-full h-full object-cover"><button type="button" data-index="${index}" class="remove-pill absolute top-0.5 right-0.5 w-5 h-5 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center transition-opacity focus:outline-none"><svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 24 24" class="w-3 h-3" fill="currentColor"><path d="M13.414,12l6.293-6.293c0.391-0.391,0.391-1.023,0-1.414s-1.023-0.391-1.414,0L12,10.586L5.707,4.293 c-0.391-0.391-1.023-0.391-1.414,0s-0.391,1.023,0,1.414L10.586,12l-6.293,6.293c-0.391,0.391-0.391,1.023,0,1.414 C4.488,19.902,4.744,20,5,20s0.512-0.098,0.707-0.293L12,13.414l6.293,6.293C18.488,19.902,18.744,20,19,20s0.512-0.098,0.707-0.293 c0.391-0.391,0.391-1.023,0-1.414L13.414,12z"/></svg></button>`; imagePillsContainerEl.appendChild(p); }); imagePillsContainerEl.querySelectorAll('.remove-pill').forEach(b => { b.addEventListener('click', (e) => { const i=parseInt(e.currentTarget.dataset.index, 10); stagedImages.splice(i, 1); renderImagePills(); }); }); } else { imagePillsContainerEl.classList.add('hidden'); imagePillsContainerEl.classList.remove('image-preview-container-input'); } }
         function streamText(element, text) { return new Promise(resolve => { let i = 0; const interval = setInterval(() => { if (i < text.length) { element.innerHTML += text.charAt(i); i++; scrollToBottom(); } else { clearInterval(interval); resolve(); } }, STREAMING_SPEED_MS); }); }
+        function blobToBase64(blob) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onloadend = () => resolve(reader.result); reader.onerror = reject; reader.readAsDataURL(blob); }); }
         async function openDownloadPage(imageUrl) { window.open(imageUrl, '_blank'); }
 
         async function handleChatSubmit() {
@@ -192,102 +155,95 @@
             isProcessing = true;
             showThinkingIndicator();
             try {
-                // *** THE NEW, "OFFICIAL" WAY TO BUILD THE CONVERSATION HISTORY ***
-                const contents = [
-                    { role: 'user', parts: [{ text: MASTER_PROMPT }] },
-                    { role: 'model', parts: [{ text: 'Theek hai. Main aapki hidayat ke mutabiq kaam karunga.' }] }, // Priming the model
-                    ...chatHistory, // The entire conversation history
-                ];
-
-                // Add any new images to the last user message
+                const contents = [ { role: 'user', parts: [{ text: MASTER_PROMPT }] }, { role: 'model', parts: [{ text: 'Theek hai. Main aapki hidayat ke mutabiq kaam karunga.' }] }, ...chatHistory ];
                 const lastUserContent = contents[contents.length - 1];
-                imagesForThisMessage.forEach(img => {
-                    lastUserContent.parts.push({ inline_data: { mime_type: img.mime_type, data: img.base64.split(',')[1] } });
-                });
-                
+                imagesForThisMessage.forEach(img => { lastUserContent.parts.push({ inline_data: { mime_type: img.mime_type, data: img.base64.split(',')[1] } }); });
                 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MULTIMODAL_MODEL_NAME}:generateContent?key=${API_KEY}`;
                 const requestBody = { contents, generationConfig: { temperature: 0.7, topP: 1, topK: 40, maxOutputTokens: 2048 } };
-                
                 const response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(requestBody) });
                 if (!response.ok) { const e = await response.json().catch(() => ({})); throw new Error(e.error?.message || `Main API request failed with status ${response.status}`); }
-                
                 const responseData = await response.json();
                 hideThinkingIndicator();
                 let rawAiResponseText = responseData.candidates[0].content.parts[0].text;
                 let aiResponse;
-                try { aiResponse = JSON.parse(rawAiResponseText.replace(/^```json\s*/, '').replace(/\s*```$/, '')); } catch (e) { aiResponse = { text_response: "Mafi, mere jawab mein ek masla aa gaya hai. Kya aap dobara koshish kar sakte hain?", image_generation_prompt: null }; }
+                try { aiResponse = JSON.parse(rawAiResponseText.replace(/^```json\s*/, '').replace(/\s*```$/, '')); } catch (e) { aiResponse = { text_response: "Mafi, mere jawab mein ek masla aa gaya hai.", image_generation_prompt: null }; }
                 
                 const aiBubble = addChatMessage('', 'ai');
                 const textPara = aiBubble.querySelector('p');
-                chatHistory.push({ role: 'model', parts: [{ text: JSON.stringify(aiResponse) }] }); // Store the raw JSON response for perfect context
+                chatHistory.push({ role: 'model', parts: [{ text: JSON.stringify(aiResponse) }] });
                 await streamText(textPara, aiResponse.text_response);
 
                 if (aiResponse.image_generation_prompt) {
                     const imageWrapper = document.createElement('div');
                     imageWrapper.className = 'mt-3 animate-fade-in-up';
-                    imageWrapper.innerHTML = `<div class="p-2 text-sm text-center"><span class="font-medium shimmer-black-text">Generating...</span></div>`;
+                    const indicatorSpan = document.createElement('span');
+                    indicatorSpan.className = 'p-2 text-sm text-center font-medium shimmer-black-text';
+                    indicatorSpan.textContent = 'Generating...';
+                    imageWrapper.appendChild(indicatorSpan);
                     aiBubble.appendChild(imageWrapper);
                     scrollToBottom();
                     try {
                         const imageGenResponse = await fetch(A4F_API_URL, { method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${A4F_API_KEY}` }, body: JSON.stringify({ model: A4F_MODEL_NAME, prompt: aiResponse.image_generation_prompt, n: 1, size: "1024x1024" }) });
-                        if (!imageGenResponse.ok) { const e = await imageGenResponse.json().catch(() => ({})); throw new Error(e.error?.message || `Image generation failed with status ${imageGenResponse.status}`); }
+                        if (!imageGenResponse.ok) { throw new Error(await imageGenResponse.text()); }
                         const imageData = await imageGenResponse.json();
                         const imageUrl = imageData.data && imageData.data[0] ? imageData.data[0].url : null;
                         if (!imageUrl) { throw new Error("Image URL not found in API response."); }
+                        
+                        indicatorSpan.textContent = 'Analyzing image...';
+                        const imageDataUri = await analyzeAndStoreVision(imageUrl);
+                        
+                        indicatorSpan.remove();
                         const img = document.createElement('img');
-                        img.src = imageUrl;
+                        img.src = imageDataUri;
                         img.className = 'w-full max-w-md h-auto rounded-lg mt-1 border border-indigo-200 bg-gray-100';
-                        img.onload = () => {
-                            imageWrapper.innerHTML = ''; imageWrapper.appendChild(img);
-                            const btn = document.createElement('button');
-                            btn.className = 'block w-full text-center mt-2 text-indigo-700 text-sm font-semibold bg-indigo-100 hover:bg-indigo-200 py-1.5 rounded-md transition-colors';
-                            btn.innerHTML = `<i class="fas fa-external-link-alt mr-2"></i>Open & Save`;
-                            btn.onclick = () => openDownloadPage(imageUrl);
-                            imageWrapper.appendChild(btn); 
-                            scrollToBottom();
-                        };
-                        img.onerror = () => { imageWrapper.innerHTML = '<p class="text-sm text-red-700">Sorry, the generated image could not be loaded.</p>'; };
+                        const btn = document.createElement('button');
+                        btn.className = 'block w-full text-center mt-2 text-indigo-700 text-sm font-semibold bg-indigo-100 hover:bg-indigo-200 py-1.5 rounded-md transition-colors';
+                        btn.innerHTML = `<i class="fas fa-external-link-alt mr-2"></i>Open & Save`;
+                        btn.onclick = () => openDownloadPage(imageUrl);
+                        imageWrapper.appendChild(img);
+                        imageWrapper.appendChild(btn); 
+                        scrollToBottom();
+                        
                     } catch (genError) {
                         console.error("Image Generation Error:", genError);
-                        imageWrapper.innerHTML = `<p class="text-sm text-red-700 bg-red-100 p-3 rounded-lg">Sorry, an error occurred while generating the image. Please try again.</p>`;
-                        chatHistory.push({ role: 'model', parts: [{ text: `{"text_response": "Sorry, an error occurred while generating the image.", "image_generation_prompt": null}` }] });
+                        imageWrapper.innerHTML = `<p class="text-sm text-red-700 bg-red-100 p-3 rounded-lg">Sorry, an error occurred while generating the image.</p>`;
+                        chatHistory.push({ role: 'model', parts: [{ text: `{"text_response": "Sorry, an error occurred during image creation.", "image_generation_prompt": null}` }] });
                     }
                 }
             } catch (error) {
                 console.error("Main Chat Error:", error);
                 hideThinkingIndicator();
-                const mainApiFailureMessage = "Sorry, a critical error occurred. Please try sending your message again.";
-                addChatMessage(mainApiFailureMessage, 'ai');
-                chatHistory.push({ role: 'model', parts: [{ text: `{"text_response": "${mainApiFailureMessage}", "image_generation_prompt": null}` }] });
+                const msg = "Sorry, a critical error occurred. Please try sending your message again.";
+                addChatMessage(msg, 'ai');
+                chatHistory.push({ role: 'model', parts: [{ text: `{"text_response": "${msg}", "image_generation_prompt": null}` }] });
             } finally {
                 isProcessing = false;
             }
         }
 
-        function handleFileSelection(files) { 
-            if (!files) return; 
-            for (const file of files) { 
-                if (stagedImages.length >= MAX_IMAGES_PER_MSG) { alert(`You can only attach a maximum of ${MAX_IMAGES_PER_MSG} images.`); break; } 
-                if (file.size > 4 * 1024 * 1024) { alert(`Image "${file.name}" is too large (max 4MB).`); continue; } 
-                const reader = new FileReader(); 
-                reader.onloadend = () => { 
-                    stagedImages.push({ base64: reader.result, mime_type: file.type, name: file.name }); 
-                    renderImagePills(); 
-                }; 
-                reader.readAsDataURL(file); 
+        async function analyzeAndStoreVision(imageUrl) {
+            try {
+                const response = await fetch(imageUrl);
+                const blob = await response.blob();
+                const base64Image = await blobToBase64(blob);
+                const visionPart = {
+                    role: 'model',
+                    parts: [
+                        { text: `(System Note: The following image was just generated and displayed to the user. I should remember its contents for the next turn.)` },
+                        { inline_data: { mime_type: blob.type, data: base64Image.split(',')[1] } }
+                    ]
+                };
+                chatHistory.push(visionPart);
+                console.log("Vision memory stored successfully.");
+                return base64Image;
+            } catch(error) {
+                console.error("Silent Vision Analysis Failed:", error);
+                return imageUrl;
             }
-            imageInputEl.value = null;
         }
 
-        function init() {
-            chatFormEl.addEventListener('submit', (e) => { e.preventDefault(); handleChatSubmit(); });
-            chatInputEl.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleChatSubmit(); } });
-            attachImageButtonEl.addEventListener('click', () => imageInputEl.click());
-            imageInputEl.addEventListener('change', (e) => handleFileSelection(e.target.files));
-            newChatButtonEl.addEventListener('click', startNewChat);
-            scrollToBottom();
-        }
-
+        function handleFileSelection(files) { if (!files) return; for (const file of files) { if (stagedImages.length >= MAX_IMAGES_PER_MSG) { alert(`You can only attach a maximum of ${MAX_IMAGES_PER_MSG} images.`); break; } if (file.size > 4*1024*1024) { alert(`Image "${file.name}" is too large (max 4MB).`); continue; } const r=new FileReader(); r.onloadend = () => { stagedImages.push({ base64: r.result, mime_type: file.type, name: file.name }); renderImagePills(); }; r.readAsDataURL(file); } imageInputEl.value = null; }
+        function init() { chatFormEl.addEventListener('submit', (e) => { e.preventDefault(); handleChatSubmit(); }); chatInputEl.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleChatSubmit(); } }); attachImageButtonEl.addEventListener('click', () => imageInputEl.click()); imageInputEl.addEventListener('change', (e) => handleFileSelection(e.target.files)); newChatButtonEl.addEventListener('click', startNewChat); scrollToBottom(); }
         init();
     </script>
 </body>
