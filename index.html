@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Insight</title>
+    <title>Insight - Your AI Partner</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -90,51 +90,11 @@
     </style>
 </head>
 <body class="p-0 sm:p-4">
-
     <div id="root" class="h-full">
         <div class="w-full h-full flex flex-col bg-white md:rounded-xl shadow-chat-window overflow-hidden">
-            <header class="p-3 flex items-center justify-between flex-shrink-0 bg-white border-b border-border-light shadow-header">
-                <div class="flex items-center space-x-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" class="w-7 h-7 text-indigo-500">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 12.75V15m0-6.75V6" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75v.008" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 12h.008v.008H7.5V12zm9 0h.008v.008H16.5V12z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12a7.5 7.5 0 1115 0 7.5 7.5 0 01-15 0z" fill="currentColor" opacity="0.2" />
-                    </svg>
-                    <h1 class="text-xl font-orbitron font-bold text-slate-800 tracking-wide">INSIGHT</h1>
-                </div>
-                <button id="new-chat-button" title="Start New Chat" class="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-indigo-600 hover:bg-indigo-100 rounded-full transition-colors duration-150 focus:outline-none">
-                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
-                        <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 9a.75.75 0 00-1.5 0v2.25H9a.75.75 0 000 1.5h2.25V15a.75.75 0 001.5 0v-2.25H15a.75.75 0 000-1.5h-2.25V9z" clip-rule="evenodd" />
-                    </svg>
-                </button>
-            </header>
-
-            <div class="chat-messages-container flex-grow p-4 md:p-5 space-y-4 overflow-y-auto relative bg-gray-50">
-                <!-- Chat messages will be appended here by JavaScript -->
-                <div id="messages-end" class="h-1"></div>
-            </div>
-
-            <form id="chat-form" class="bg-gray-50 flex-shrink-0">
-                <div class="p-2 md:p-3">
-                    <div class="flex flex-col bg-white rounded-xl border border-border-default focus-within:border-indigo-300 focus-within:ring-1 focus-within:ring-indigo-300 transition-all duration-200">
-                        <div id="image-pills-container" class="hidden"></div>
-                        <div class="flex items-end w-full p-1.5">
-                            <button type="button" id="attach-image-button" class="flex-shrink-0 w-9 h-9 flex items-center justify-center text-gray-500 hover:text-indigo-500 rounded-full hover:bg-indigo-100 transition-colors duration-150 focus:outline-none">
-                                <i class="fas fa-paperclip text-lg"></i>
-                            </button>
-                            <input type="file" id="image-input" class="hidden" multiple accept="image/png, image/jpeg, image/webp">
-                            
-                            <div id="chatInput" contenteditable="true" data-placeholder="Write a message..." class="content-editable-input w-full flex-1 text-base focus:outline-none resize-none overflow-y-auto max-h-32"></div>
-
-                            <button type="submit" id="chatSendButton" class="flex-shrink-0 w-9 h-9 flex items-center justify-center font-semibold rounded-lg bg-brand-send-active hover:bg-brand-send-hover text-white transition-all duration-150 ease-in-out transform active:animate-button-press focus:outline-none ml-2">
-                                <i class="fas fa-paper-plane text-base"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </form>
+            <header class="p-3 flex items-center justify-between flex-shrink-0 bg-white border-b border-border-light shadow-header"><div class="flex items-center space-x-2"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" class="w-7 h-7 text-indigo-500"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 12.75V15m0-6.75V6" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75v.008" /><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 12h.008v.008H7.5V12zm9 0h.008v.008H16.5V12z" /><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12a7.5 7.5 0 1115 0 7.5 7.5 0 01-15 0z" fill="currentColor" opacity="0.2" /></svg><h1 class="text-xl font-orbitron font-bold text-slate-800 tracking-wide">INSIGHT</h1></div><button id="new-chat-button" title="Start New Chat" class="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-indigo-600 hover:bg-indigo-100 rounded-full transition-colors duration-150 focus:outline-none"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6"><path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 9a.75.75 0 00-1.5 0v2.25H9a.75.75 0 000 1.5h2.25V15a.75.75 0 001.5 0v-2.25H15a.75.75 0 000-1.5h-2.25V9z" clip-rule="evenodd" /></svg></button></header>
+            <div class="chat-messages-container flex-grow p-4 md:p-5 space-y-4 overflow-y-auto relative bg-gray-50"><div id="messages-end" class="h-1"></div></div>
+            <form id="chat-form" class="bg-gray-50 flex-shrink-0"><div class="p-2 md:p-3"><div class="flex flex-col bg-white rounded-xl border border-border-default focus-within:border-indigo-300 focus-within:ring-1 focus-within:ring-indigo-300 transition-all duration-200"><div id="image-pills-container" class="hidden"></div><div class="flex items-end w-full p-1.5"><button type="button" id="attach-image-button" class="flex-shrink-0 w-9 h-9 flex items-center justify-center text-gray-500 hover:text-indigo-500 rounded-full hover:bg-indigo-100 transition-colors duration-150 focus:outline-none"><i class="fas fa-paperclip text-lg"></i></button><input type="file" id="image-input" class="hidden" multiple accept="image/png, image/jpeg, image/webp"><div id="chatInput" contenteditable="true" data-placeholder="Write a message..." class="content-editable-input w-full flex-1 text-base focus:outline-none resize-none overflow-y-auto max-h-32"></div><button type="submit" id="chatSendButton" class="flex-shrink-0 w-9 h-9 flex items-center justify-center font-semibold rounded-lg bg-brand-send-active hover:bg-brand-send-hover text-white transition-all duration-150 ease-in-out transform active:animate-button-press focus:outline-none ml-2"><i class="fas fa-paper-plane text-base"></i></button></div></div></div></form>
         </div>
     </div>
 
@@ -148,11 +108,48 @@
         const A4F_API_URL = "https://api.a4f.co/v1/images/generations";
         const A4F_MODEL_NAME = "provider-1/FLUX.1-kontext-pro";
 
-        const MASTER_PROMPT = `You are 'Insight', a genius-level, multi-modal AI assistant with persistent memory. You will receive the full CHAT_HISTORY, the LATEST_USER_MESSAGE, any NEWLY_UPLOADED_IMAGES, and crucially, the 'ACTIVE_IMAGE_PROMPT' which is the prompt that created the last image in the conversation. IMPORTANT: You must respond in Roman Urdu (Urdu written in English alphabet) for all conversational text. However, for image generation prompts, you must ALWAYS use English only. CRITICAL: Your entire output must be ONLY the JSON object and nothing else. Do not add any introductory text, apologies, or explanations outside of the JSON structure. Your response MUST be in a valid JSON format: { "text_response": "Your conversational reply to the user in Roman Urdu. This should be friendly, natural, and explain what you are doing if generating an image.", "image_generation_prompt": "If you decide to generate/edit an image, create a detailed, single-paragraph prompt for a text-to-image AI here IN ENGLISH ONLY. Otherwise, this MUST be null." } YOUR DECISION LOGIC: 1. **If NEWLY_UPLOADED_IMAGES exist:** Your top priority is these new images. The ACTIVE_IMAGE_PROMPT should be ignored. - If there is ONE new image and the user asks to edit it (e.g., 'make this girl's dress blue'), create an image prompt describing the edited scene. - If there are MULTIPLE new images, the user wants to compose a scene. Create a prompt that combines the subjects from all images as per their text instructions. - If the user just asks to analyze ("what is this?"), provide the analysis in 'text_response' and set 'image_generation_prompt' to null. 2. **If NO new images are attached, BUT 'ACTIVE_IMAGE_PROMPT' exists:** This means the user wants to modify the LAST image you showed them. - Your job is to be a PRECISION EDITOR. Surgically modify the 'ACTIVE_IMAGE_PROMPT' with the user's new instructions (e.g., change color, add an item). Do NOT change anything else. The original visual context is paramount. 3. **If NO new images AND NO 'ACTIVE_IMAGE_PROMPT':** This is a fresh conversation. - If the user's message is inherently visual ("show me a picture of Saturn"), create an 'image_generation_prompt'. - Otherwise, have a normal text-based conversation, keeping 'image_generation_prompt' as null. CHAT HISTORY (for context): {CHAT_HISTORY} ACTIVE IMAGE PROMPT (from last turn, if any): {ACTIVE_IMAGE_PROMPT} LATEST USER MESSAGE: "{USER_MESSAGE}"`;
+        const MASTER_PROMPT = `You are 'Insight', a genius-level, multi-modal AI assistant with persistent memory. You will receive the full CHAT_HISTORY, the LATEST_USER_MESSAGE, any NEWLY_UPLOADED_IMAGES, and crucially, the 'ACTIVE_IMAGE_PROMPT' which is the prompt that created the last image in the conversation. IMPORTANT: You must respond in Roman Urdu (Urdu written in English alphabet) for all conversational text. However, for image generation prompts, you must ALWAYS use English only. CRITICAL: Your entire output must be ONLY the JSON object and nothing else. Do not add any introductory text, apologies, or explanations outside of the JSON structure. Your response MUST be in a valid JSON format: { "text_response": "Your conversational reply to the user in Roman Urdu. This should be friendly, natural, and explain what you are doing if generating an image.", "image_generation_prompt": "If you decide to generate/edit an image, create a detailed, single-paragraph prompt for a text-to-image AI here IN ENGLISH ONLY. Otherwise, this MUST be null." } 
+
+YOUR DECISION LOGIC (in order of priority):
+1.  **IF THE LAST ASSISTANT MESSAGE WAS AN IMAGE GENERATION FAILURE** (e.g., contains "Sorry, I cannot create", "technical issue"): This is your highest priority. The user is likely asking you to try again. Your job is to be a CREATIVE PROBLEM SOLVER, not to repeat your failure.
+    - **Analyze** the user's original request that failed from the CHAT_HISTORY.
+    - **Identify** the likely problematic keyword (e.g., a copyrighted character name like 'Goku').
+    - **CREATE A NEW, DESCRIPTIVE \`image_generation_prompt\`** that captures the VISUAL ESSENCE of the request *without* using the problematic keyword. For example, instead of 'Goku', describe 'A powerful anime warrior with distinctive spiky golden hair, wearing an orange martial arts uniform, firing a glowing blue energy blast from his hands, dynamic battle aura'.
+    - In your \`text_response\`, explain to the user in Roman Urdu that you are trying a different, descriptive method to bypass the previous issue. (e.g., "Samajh gaya. Pichli koshish shayad kisi khaas naam ki wajah se fail ho gayi thi. Is baar main us character jaisa dikhne wali ek tasveer banane ki koshish karta hoon, unka naam istemal kiye bagair.")
+    - Set this new prompt in the \`image_generation_prompt\` field.
+
+2.  **If NEWLY_UPLOADED_IMAGES exist:** Your top priority is these new images. The ACTIVE_IMAGE_PROMPT should be ignored.
+    - If there is ONE new image and the user asks to edit it, create an image prompt describing the edited scene.
+    - If there are MULTIPLE new images, the user wants to compose a scene. Create a prompt that combines the subjects from all images as per their text instructions.
+    - If the user just asks to analyze ("what is this?"), provide the analysis in 'text_response' and set 'image_generation_prompt' to null.
+
+3.  **If NO new images are attached, BUT 'ACTIVE_IMAGE_PROMPT' exists:** This means the user wants to modify the LAST image you showed them.
+    - Your job is to be a PRECISION EDITOR. Surgically modify the 'ACTIVE_IMAGE_PROMPT' with the user's new instructions. Do NOT change anything else.
+
+4.  **If it's a fresh conversation (none of the above apply):**
+    - If the user's message is inherently visual, create an 'image_generation_prompt'.
+    - Otherwise, have a normal text-based conversation, keeping 'image_generation_prompt' as null.
+
+CHAT HISTORY (for context): {CHAT_HISTORY} 
+ACTIVE IMAGE PROMPT (from last turn, if any): {ACTIVE_IMAGE_PROMPT} 
+LATEST USER MESSAGE: "{USER_MESSAGE}"`;
+        
+        const ERROR_ANALYSIS_PROMPT = `You are 'Insight', an AI assistant. You just attempted to generate an image, but it failed. Your task is to explain this failure to the user in a concise, single-line, non-technical sentence in ENGLISH.
+
+**CRITICAL RULES:**
+1.  **NEVER** use words like "third-party APIs," "filters," "policies," etc. Frame this as YOUR OWN internal system issue.
+2.  Your entire response MUST be a simple text string, NOT JSON, and only a single sentence.
+3.  Analyze the provided TECHNICAL_ERROR_MESSAGE and generate a user-friendly response based on the following logic:
+    *   If the error contains "422", "policy", "safety", "refused", or "content", it's a safety issue. (e.g., "Sorry, I cannot create this type of image due to my safety guidelines.")
+    *   If the error contains "quota" or "rate limit", it's a capacity issue. (e.g., "Sorry, my systems are currently overloaded, please try again in a moment.")
+    *   For any other error (like "404", "500", "network error"), it's a general issue. (e.g., "Sorry, a technical issue occurred while generating the image.")
+
+The internal technical error was: "{TECHNICAL_ERROR_MESSAGE}"
+
+Now, provide the concise, single-line response in English.`;
 
         const chatMessageContainerEl = document.querySelector('.chat-messages-container');
         const chatInputEl = document.getElementById('chatInput');
-        const chatSendButtonEl = document.getElementById('chatSendButton');
         const attachImageButtonEl = document.getElementById('attach-image-button');
         const imageInputEl = document.getElementById('image-input');
         const imagePillsContainerEl = document.getElementById('image-pills-container');
@@ -165,149 +162,83 @@
         let activeImagePrompt = null; 
         let isProcessing = false;
         
-        function scrollToBottom() {
-            if (messagesEndEl) {
-                messagesEndEl.scrollIntoView({ behavior: 'smooth' });
-            }
-        }
+        function scrollToBottom() { if (messagesEndEl) messagesEndEl.scrollIntoView({ behavior: 'smooth' }); }
         
         function startNewChat() {
-            chatHistory = [];
-            activeImagePrompt = null;
-            stagedImages = [];
-            isProcessing = false;
+            chatHistory = []; activeImagePrompt = null; stagedImages = []; isProcessing = false;
             chatMessageContainerEl.innerHTML = '<div id="messages-end" class="h-1"></div>';
             messagesEndEl = document.getElementById('messages-end');
-            chatInputEl.innerHTML = '';
-            renderImagePills();
-            hideThinkingIndicator();
+            chatInputEl.innerHTML = ''; renderImagePills(); hideThinkingIndicator();
         }
 
         function addChatMessage(message, role, images = []) {
-            const messageWrapperDiv = document.createElement('div');
-            messageWrapperDiv.className = `flex w-full animate-fade-in-up opacity-0 ${role === 'user' ? 'justify-end' : 'justify-start'}`;
-            let imageGridHTML = '';
-            if (images.length > 0) {
-                imageGridHTML = `<div class="grid gap-1 mb-1.5 ${images.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}">
-                    ${images.map(imgData => `<div class="rounded-lg overflow-hidden group relative max-w-full w-full"><img src="${imgData.base64}" alt="attached image" class="block w-full max-h-60 object-contain rounded-lg"></div>`).join('')}
-                </div>`;
-            }
+            const wrapper = document.createElement('div');
+            wrapper.className = `flex w-full animate-fade-in-up opacity-0 ${role === 'user' ? 'justify-end' : 'justify-start'}`;
+            let gridHTML = '';
+            if (images.length > 0) { gridHTML = `<div class="grid gap-1 mb-1.5 ${images.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}">${images.map(img => `<div class="rounded-lg overflow-hidden group relative max-w-full w-full"><img src="${img.base64}" alt="attached image" class="block w-full max-h-60 object-contain rounded-lg"></div>`).join('')}</div>`; }
             const bubble = document.createElement('div');
             bubble.className = `px-4 py-3 shadow-card relative ${role === 'user' ? 'bg-surface-user-bubble-bg text-text-primary rounded-xl rounded-br-md max-w-[85%]' : 'bg-white text-text-secondary rounded-lg border border-slate-200 w-full'}`;
-            const textPara = document.createElement('p');
-            textPara.className = 'text-base font-normal whitespace-pre-wrap break-words';
-            textPara.innerHTML = message;
-            bubble.innerHTML = imageGridHTML;
-            bubble.appendChild(textPara);
-            messageWrapperDiv.appendChild(bubble);
-            chatMessageContainerEl.insertBefore(messageWrapperDiv, messagesEndEl);
+            const para = document.createElement('p');
+            para.className = 'text-base font-normal whitespace-pre-wrap break-words';
+            para.innerHTML = message;
+            bubble.innerHTML = gridHTML;
+            bubble.appendChild(para);
+            wrapper.appendChild(bubble);
+            chatMessageContainerEl.insertBefore(wrapper, messagesEndEl);
             scrollToBottom();
             return bubble;
         }
 
-        function showThinkingIndicator() {
-            hideThinkingIndicator();
-            const indicatorHTML = `<div class="flex w-full justify-start animate-fade-in-up" id="dynamic-thinking-indicator"><div class="px-4 py-3 shadow-card bg-white rounded-lg border border-slate-200"><div class="flex items-center self-start"><span class="text-sm font-medium shimmer-black-text">thinking...</span></div></div></div>`;
-            chatMessageContainerEl.insertBefore(document.createRange().createContextualFragment(indicatorHTML), messagesEndEl);
-            scrollToBottom();
-        }
-
-        function hideThinkingIndicator() {
-            const indicator = document.getElementById('dynamic-thinking-indicator');
-            if (indicator) indicator.remove();
-        }
+        function showThinkingIndicator() { hideThinkingIndicator(); const i = `<div class="flex w-full justify-start animate-fade-in-up" id="dynamic-thinking-indicator"><div class="px-4 py-3 shadow-card bg-white rounded-lg border border-slate-200"><div class="flex items-center self-start"><span class="text-sm font-medium shimmer-black-text">thinking...</span></div></div></div>`; chatMessageContainerEl.insertBefore(document.createRange().createContextualFragment(i), messagesEndEl); scrollToBottom(); }
+        function hideThinkingIndicator() { const i = document.getElementById('dynamic-thinking-indicator'); if (i) i.remove(); }
 
         function renderImagePills() {
-            if (stagedImages.length > 0) {
-                imagePillsContainerEl.classList.remove('hidden');
-                imagePillsContainerEl.classList.add('image-preview-container-input');
-            } else {
-                imagePillsContainerEl.classList.add('hidden');
-                imagePillsContainerEl.classList.remove('image-preview-container-input');
-                return;
-            }
             imagePillsContainerEl.innerHTML = '';
-            stagedImages.forEach((imgData, index) => {
-                const pill = document.createElement('div');
-                pill.className = 'relative w-14 h-14 rounded-md overflow-hidden shadow-sm group border border-gray-200';
-                pill.innerHTML = `<img src="${imgData.base64}" alt="${imgData.name}" class="w-full h-full object-cover"><button type="button" data-index="${index}" class="remove-pill absolute top-0.5 right-0.5 w-5 h-5 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center transition-opacity focus:outline-none"><svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 24 24" class="w-3 h-3" fill="currentColor"><path d="M13.414,12l6.293-6.293c0.391-0.391,0.391-1.023,0-1.414s-1.023-0.391-1.414,0L12,10.586L5.707,4.293 c-0.391-0.391-1.023-0.391-1.414,0s-0.391,1.023,0,1.414L10.586,12l-6.293,6.293c-0.391,0.391-0.391,1.023,0,1.414 C4.488,19.902,4.744,20,5,20s0.512-0.098,0.707-0.293L12,13.414l6.293,6.293C18.488,19.902,18.744,20,19,20s0.512-0.098,0.707-0.293 c0.391-0.391,0.391-1.023,0-1.414L13.414,12z"/></svg></button>`;
-                imagePillsContainerEl.appendChild(pill);
-            });
-            imagePillsContainerEl.querySelectorAll('.remove-pill').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const indexToRemove = parseInt(e.currentTarget.dataset.index, 10);
-                    stagedImages.splice(indexToRemove, 1);
-                    renderImagePills();
+            if (stagedImages.length > 0) {
+                imagePillsContainerEl.classList.remove('hidden'); imagePillsContainerEl.classList.add('image-preview-container-input');
+                stagedImages.forEach((img, index) => {
+                    const pill = document.createElement('div');
+                    pill.className = 'relative w-14 h-14 rounded-md overflow-hidden shadow-sm group border border-gray-200';
+                    pill.innerHTML = `<img src="${img.base64}" alt="${img.name}" class="w-full h-full object-cover"><button type="button" data-index="${index}" class="remove-pill absolute top-0.5 right-0.5 w-5 h-5 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center transition-opacity focus:outline-none"><svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 24 24" class="w-3 h-3" fill="currentColor"><path d="M13.414,12l6.293-6.293c0.391-0.391,0.391-1.023,0-1.414s-1.023-0.391-1.414,0L12,10.586L5.707,4.293 c-0.391-0.391-1.023-0.391-1.414,0s-0.391,1.023,0,1.414L10.586,12l-6.293,6.293c-0.391,0.391-0.391,1.023,0,1.414 C4.488,19.902,4.744,20,5,20s0.512-0.098,0.707-0.293L12,13.414l6.293,6.293C18.488,19.902,18.744,20,19,20s0.512-0.098,0.707-0.293 c0.391-0.391,0.391-1.023,0-1.414L13.414,12z"/></svg></button>`;
+                    imagePillsContainerEl.appendChild(pill);
                 });
-            });
+                imagePillsContainerEl.querySelectorAll('.remove-pill').forEach(btn => {
+                    btn.addEventListener('click', (e) => { const i = parseInt(e.currentTarget.dataset.index, 10); stagedImages.splice(i, 1); renderImagePills(); });
+                });
+            } else { imagePillsContainerEl.classList.add('hidden'); imagePillsContainerEl.classList.remove('image-preview-container-input'); }
         }
         
-        function streamText(element, text) {
-            return new Promise(resolve => {
-                let i = 0;
-                const interval = setInterval(() => {
-                    if (i < text.length) {
-                        element.innerHTML += text.charAt(i);
-                        i++;
-                        scrollToBottom();
-                    } else {
-                        clearInterval(interval);
-                        resolve();
-                    }
-                }, STREAMING_SPEED_MS);
-            });
-        }
-
-        // *** MODIFIED FUNCTION FOR WEBVIEW COMPATIBILITY ***
-        async function openDownloadPage(imageUrl) {
-            // Directly open the original image URL from the AI server.
-            // This is a standard https:// link that WebViews can hand off to an external browser like Chrome.
-            // The user can then long-press the image in their browser to save it.
-            window.open(imageUrl, '_blank');
-        }
+        function streamText(element, text) { return new Promise(resolve => { let i = 0; const interval = setInterval(() => { if (i < text.length) { element.innerHTML += text.charAt(i); i++; scrollToBottom(); } else { clearInterval(interval); resolve(); } }, STREAMING_SPEED_MS); }); }
+        async function openDownloadPage(imageUrl) { window.open(imageUrl, '_blank'); }
 
         async function handleChatSubmit() {
             const userMessage = chatInputEl.innerText.trim();
-            if ((!userMessage && stagedImages.length === 0) || isProcessing) return;
-            
             const imagesForThisMessage = [...stagedImages];
+            if ((!userMessage && imagesForThisMessage.length === 0) || isProcessing) return;
             addChatMessage(userMessage, 'user', imagesForThisMessage);
             chatHistory.push({ role: 'user', content: userMessage });
-            
-            chatInputEl.innerHTML = ''; 
-            stagedImages = []; 
-            renderImagePills();
-            
+            chatInputEl.innerHTML = ''; stagedImages = []; renderImagePills();
+            await processRequest(userMessage, imagesForThisMessage);
+        }
+
+        async function processRequest(userMessage, imagesForThisMessage) {
             isProcessing = true;
             showThinkingIndicator();
-
             try {
                 if (imagesForThisMessage.length > 0) { activeImagePrompt = null; }
                 const historyString = chatHistory.map(m => `${m.role}: ${m.content}`).join('\\n');
                 const prompt = MASTER_PROMPT.replace("{CHAT_HISTORY}", historyString).replace("{ACTIVE_IMAGE_PROMPT}", activeImagePrompt || "None").replace("{USER_MESSAGE}", userMessage);
-                
                 const parts = [{ text: prompt }];
                 imagesForThisMessage.forEach(img => { parts.push({ inline_data: { mime_type: img.mime_type, data: img.base64.split(',')[1] } }); });
-
                 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MULTIMODAL_MODEL_NAME}:generateContent?key=${API_KEY}`;
                 const requestBody = { contents: [{ parts }], generationConfig: { temperature: 0.5, topP: 1, topK: 32, maxOutputTokens: 2048 } };
-                
                 const response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(requestBody) });
+                if (!response.ok) { const e = await response.json().catch(() => ({})); throw new Error(e.error?.message || `Main API request failed with status ${response.status}`); }
                 const responseData = await response.json();
-                
                 hideThinkingIndicator();
-                
-                if (!response.ok) throw new Error(responseData.error?.message || "API request failed");
                 let rawAiResponseText = responseData.candidates[0].content.parts[0].text;
                 let aiResponse;
-
-                try {
-                    const cleanedText = rawAiResponseText.replace(/^```json\s*/, '').replace(/\s*```$/, '');
-                    aiResponse = JSON.parse(cleanedText);
-                } catch (e) {
-                    aiResponse = { text_response: rawAiResponseText, image_generation_prompt: null };
-                }
-                
+                try { aiResponse = JSON.parse(rawAiResponseText.replace(/^```json\s*/, '').replace(/\s*```$/, '')); } catch (e) { aiResponse = { text_response: rawAiResponseText, image_generation_prompt: null }; }
                 const aiBubble = addChatMessage('', 'ai');
                 const textPara = aiBubble.querySelector('p');
                 chatHistory.push({ role: 'assistant', content: aiResponse.text_response });
@@ -320,94 +251,84 @@
                     imageWrapper.innerHTML = `<div class="p-2 text-sm text-center"><span class="font-medium shimmer-black-text">Generating...</span></div>`;
                     aiBubble.appendChild(imageWrapper);
                     scrollToBottom();
-                    
                     try {
-                        const imageGenResponse = await fetch(A4F_API_URL, {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json",
-                                "Authorization": `Bearer ${A4F_API_KEY}`
-                            },
-                            body: JSON.stringify({ model: A4F_MODEL_NAME, prompt: aiResponse.image_generation_prompt, n: 1, size: "1024x1024" })
-                        });
-
-                        if (!imageGenResponse.ok) {
-                            const errorData = await imageGenResponse.json();
-                            throw new Error(errorData.error?.message || `Image generation failed with status ${imageGenResponse.status}`);
-                        }
-
+                        const imageGenResponse = await fetch(A4F_API_URL, { method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${A4F_API_KEY}` }, body: JSON.stringify({ model: A4F_MODEL_NAME, prompt: aiResponse.image_generation_prompt, n: 1, size: "1024x1024" }) });
+                        if (!imageGenResponse.ok) { const e = await imageGenResponse.json().catch(() => ({})); throw new Error(e.error?.message || `Image generation failed with status ${imageGenResponse.status}`); }
                         const imageData = await imageGenResponse.json();
                         const imageUrl = imageData.data && imageData.data[0] ? imageData.data[0].url : null;
-
                         if (!imageUrl) { throw new Error("Image URL not found in API response."); }
-
                         const img = document.createElement('img');
                         img.src = imageUrl;
                         img.className = 'w-full max-w-md h-auto rounded-lg mt-1 border border-indigo-200 bg-gray-100';
-
                         img.onload = () => {
-                            imageWrapper.innerHTML = '';
-                            imageWrapper.appendChild(img);
-                            const openPageButton = document.createElement('button');
-                            openPageButton.className = 'block w-full text-center mt-2 text-indigo-700 text-sm font-semibold bg-indigo-100 hover:bg-indigo-200 py-1.5 rounded-md transition-colors';
-                            openPageButton.innerHTML = `<i class="fas fa-external-link-alt mr-2"></i>Open & Save`;
-                            // *** MODIFIED ONCLICK CALL ***
-                            openPageButton.onclick = () => openDownloadPage(imageUrl);
-                            imageWrapper.appendChild(openPageButton);
-                            scrollToBottom();
+                            imageWrapper.innerHTML = ''; imageWrapper.appendChild(img);
+                            const btn = document.createElement('button');
+                            btn.className = 'block w-full text-center mt-2 text-indigo-700 text-sm font-semibold bg-indigo-100 hover:bg-indigo-200 py-1.5 rounded-md transition-colors';
+                            btn.innerHTML = `<i class="fas fa-external-link-alt mr-2"></i>Open & Save`;
+                            btn.onclick = () => openDownloadPage(imageUrl);
+                            imageWrapper.appendChild(btn); scrollToBottom();
                         };
-                        img.onerror = () => {
-                            imageWrapper.textContent = 'Sorry, the generated image could not be loaded.';
-                            activeImagePrompt = null;
-                        };
-
+                        img.onerror = () => { imageWrapper.textContent = ''; handleImageGenerationFailure(new Error("Generated image could not be loaded."), imageWrapper, userMessage); };
                     } catch (genError) {
                         console.error("Image Generation Error:", genError);
-                        imageWrapper.textContent = `Sorry, the image could not be generated. (Error: ${genError.message})`;
                         activeImagePrompt = null;
+                        handleImageGenerationFailure(genError, imageWrapper, userMessage);
                     }
                 }
             } catch (error) {
-                console.error("Chat Error:", error);
+                console.error("Main Chat Error:", error);
                 hideThinkingIndicator();
-                addChatMessage(`I'm sorry, an error occurred. Please try rephrasing your request. (Error: ${error.message})`, 'ai');
+                const mainApiFailureMessage = "Sorry, a technical error occurred. Please try sending your message again.";
+                addChatMessage(mainApiFailureMessage, 'ai');
+                chatHistory.push({ role: 'assistant', content: mainApiFailureMessage });
             } finally {
                 isProcessing = false;
             }
         }
         
-        function handleFileSelection(files) {
-            if (!files) return;
-            for (const file of files) {
-                if (stagedImages.length >= MAX_IMAGES_PER_MSG) { alert(`You can only attach a maximum of ${MAX_IMAGES_PER_MSG} images.`); break; }
-                if (file.size > 4 * 1024 * 1024) { alert(`Image "${file.name}" is too large (max 4MB).`); continue; }
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    stagedImages.push({ base64: reader.result, mime_type: file.type, name: file.name });
-                    renderImagePills();
-                };
-                reader.readAsDataURL(file);
+        async function handleImageGenerationFailure(error, uiElement, userMessage) {
+            uiElement.innerHTML = `<div class="p-2 text-sm text-center"><span class="font-medium shimmer-black-text">Analyzing issue...</span></div>`;
+            const errorPrompt = ERROR_ANALYSIS_PROMPT.replace("{USER_MESSAGE}", userMessage).replace("{TECHNICAL_ERROR_MESSAGE}", error.message);
+            try {
+                const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MULTIMODAL_MODEL_NAME}:generateContent?key=${API_KEY}`;
+                const requestBody = { contents: [{ parts: [{ text: errorPrompt }] }] };
+                const response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(requestBody) });
+                if (!response.ok) { const e = await response.json().catch(() => ({})); throw new Error(e.error?.message || "Failed to analyze error"); }
+                const responseData = await response.json();
+                const friendlyErrorMessage = responseData.candidates[0].content.parts[0].text;
+                uiElement.innerHTML = `<p class="text-sm text-red-700 bg-red-100 p-3 rounded-lg">${friendlyErrorMessage}</p>`;
+                chatHistory.push({ role: 'assistant', content: friendlyErrorMessage });
+            } catch (analysisError) {
+                console.error("Error analysis failed:", analysisError);
+                const fallbackMessage = "Sorry, a technical issue occurred while generating the image.";
+                uiElement.innerHTML = `<p class="text-sm text-red-700 bg-red-100 p-3 rounded-lg">${fallbackMessage}</p>`;
+                chatHistory.push({ role: 'assistant', content: fallbackMessage });
             }
         }
 
+        // *** THE FIX IS HERE ***
+        function handleFileSelection(files) { 
+            if (!files) return; 
+            for (const file of files) { 
+                if (stagedImages.length >= MAX_IMAGES_PER_MSG) { alert(`You can only attach a maximum of ${MAX_IMAGES_PER_MSG} images.`); break; } 
+                if (file.size > 4 * 1024 * 1024) { alert(`Image "${file.name}" is too large (max 4MB).`); continue; } 
+                const reader = new FileReader(); 
+                reader.onloadend = () => { 
+                    stagedImages.push({ base64: reader.result, mime_type: file.type, name: file.name }); 
+                    renderImagePills(); 
+                }; 
+                reader.readAsDataURL(file); 
+            }
+            // Reset the input value after processing. This allows selecting the same file again.
+            imageInputEl.value = null;
+        }
+
         function init() {
-            chatFormEl.addEventListener('submit', (e) => {
-                e.preventDefault();
-                handleChatSubmit();
-            });
-
-            chatInputEl.addEventListener('keydown', (e) => { 
-                if (e.key === 'Enter' && !e.shiftKey) { 
-                    e.preventDefault(); 
-                    handleChatSubmit(); 
-                } 
-            });
-
+            chatFormEl.addEventListener('submit', (e) => { e.preventDefault(); handleChatSubmit(); });
+            chatInputEl.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleChatSubmit(); } });
             attachImageButtonEl.addEventListener('click', () => imageInputEl.click());
             imageInputEl.addEventListener('change', (e) => handleFileSelection(e.target.files));
-            
             newChatButtonEl.addEventListener('click', startNewChat);
-
             scrollToBottom();
         }
 
