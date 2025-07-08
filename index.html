@@ -108,47 +108,13 @@
         const A4F_API_URL = "https://api.a4f.co/v1/images/generations";
         const A4F_MODEL_NAME = "provider-1/FLUX.1-kontext-pro";
 
-        const MASTER_PROMPT = `You are 'Insight', a genius-level, multi-modal AI assistant with persistent memory. You will receive the full CHAT_HISTORY, the LATEST_USER_MESSAGE, any NEWLY_UPLOADED_IMAGES, and crucially, the 'ACTIVE_IMAGE_PROMPT' which is the prompt that created the last image in the conversation. IMPORTANT: You must respond in Roman Urdu (Urdu written in English alphabet) for all conversational text. However, for image generation prompts, you must ALWAYS use English only. CRITICAL: Your entire output must be ONLY the JSON object and nothing else. Do not add any introductory text, apologies, or explanations outside of the JSON structure. Your response MUST be in a valid JSON format: { "text_response": "Your conversational reply to the user in Roman Urdu. This should be friendly, natural, and explain what you are doing if generating an image.", "image_generation_prompt": "If you decide to generate/edit an image, create a detailed, single-paragraph prompt for a text-to-image AI here IN ENGLISH ONLY. Otherwise, this MUST be null." } 
-
-YOUR DECISION LOGIC (in order of priority):
-0.  **[CRITICAL CONTEXT RULE]:** If the last message in the chat history is a system note like \`(Tasveer kamyabi se ban kar user ko dikha di gayi hai.)\`, it means your previous image generation task is COMPLETE. The user's new message is a fresh, new turn. You MUST NOT try to generate or edit the previous image. Treat their new message as a normal conversational follow-up (e.g., a compliment, a new question, etc.) and do not generate an image unless they explicitly ask for a new one.
-
-1.  **IF THE LAST ASSISTANT MESSAGE WAS AN IMAGE GENERATION FAILURE** (e.g., contains "Sorry, I cannot create", "technical issue"): This is your highest priority. The user is likely asking you to try again. Your job is to be a CREATIVE PROBLEM SOLVER, not to repeat your failure.
-    - **Analyze** the user's original request that failed from the CHAT_HISTORY.
-    - **Identify** the likely problematic keyword (e.g., a copyrighted character name like 'Goku').
-    - **CREATE A NEW, DESCRIPTIVE \`image_generation_prompt\`** that captures the VISUAL ESSENCE of the request *without* using the problematic keyword. For example, instead of 'Goku', describe 'A powerful anime warrior with distinctive spiky golden hair, wearing an orange martial arts uniform, firing a glowing blue energy blast from his hands, dynamic battle aura'.
-    - In your \`text_response\`, explain to the user in Roman Urdu that you are trying a different, descriptive method to bypass the previous issue. (e.g., "Samajh gaya. Pichli koshish shayad kisi khaas naam ki wajah se fail ho gayi thi. Is baar main us character jaisa dikhne wali ek tasveer banane ki koshish karta hoon, unka naam istemal kiye bagair.")
-    - Set this new prompt in the \`image_generation_prompt\` field.
-
-2.  **If NEWLY_UPLOADED_IMAGES exist:** Your top priority is these new images. The ACTIVE_IMAGE_PROMPT should be ignored.
-    - If there is ONE new image and the user asks to edit it, create an image prompt describing the edited scene.
-    - If there are MULTIPLE new images, the user wants to compose a scene. Create a prompt that combines the subjects from all images as per their text instructions.
-    - If the user just asks to analyze ("what is this?"), provide the analysis in 'text_response' and set 'image_generation_prompt' to null.
-
-3.  **If NO new images are attached, BUT 'ACTIVE_IMAGE_PROMPT' exists:** This means the user wants to modify the LAST image you showed them.
-    - Your job is to be a PRECISION EDITOR. Surgically modify the 'ACTIVE_IMAGE_PROMPT' with the user's new instructions. Do NOT change anything else.
-
-4.  **If it's a fresh conversation (none of the above apply):**
-    - If the user's message is inherently visual, create an 'image_generation_prompt'.
-    - Otherwise, have a normal text-based conversation, keeping 'image_generation_prompt' as null.
-
-CHAT HISTORY (for context): {CHAT_HISTORY} 
-ACTIVE IMAGE PROMPT (from last turn, if any): {ACTIVE_IMAGE_PROMPT} 
-LATEST USER MESSAGE: "{USER_MESSAGE}"`;
-        
-        const ERROR_ANALYSIS_PROMPT = `You are 'Insight', an AI assistant. You just attempted to generate an image, but it failed. Your task is to explain this failure to the user in a concise, single-line, non-technical sentence in ENGLISH.
-
-**CRITICAL RULES:**
-1.  **NEVER** use words like "third-party APIs," "filters," "policies," etc. Frame this as YOUR OWN internal system issue.
-2.  Your entire response MUST be a simple text string, NOT JSON, and only a single sentence.
-3.  Analyze the provided TECHNICAL_ERROR_MESSAGE and generate a user-friendly response based on the following logic:
-    *   If the error contains "422", "policy", "safety", "refused", or "content", it's a safety issue. (e.g., "Sorry, I cannot create this type of image due to my safety guidelines.")
-    *   If the error contains "quota" or "rate limit", it's a capacity issue. (e.g., "Sorry, my systems are currently overloaded, please try again in a moment.")
-    *   For any other error (like "404", "500", "network error"), it's a general issue. (e.g., "Sorry, a technical issue occurred while generating the image.")
-
-The internal technical error was: "{TECHNICAL_ERROR_MESSAGE}"
-
-Now, provide the concise, single-line response in English.`;
+        // *** THE NEW, SIMPLIFIED MASTER PROMPT ***
+        const MASTER_PROMPT = `You are 'Insight', a helpful and multi-modal AI assistant.
+- Your main goal is to have natural, helpful conversations.
+- For all conversational text, you MUST respond in Roman Urdu (Urdu written in the English alphabet).
+- If you decide to generate an image based on the conversation, the prompt for the image generation model must be in ENGLISH.
+- Your entire output MUST be ONLY a valid JSON object and nothing else. Do not add any text outside the JSON structure.
+- The JSON format is: { "text_response": "Your conversational reply in Roman Urdu.", "image_generation_prompt": "A detailed, single-paragraph prompt for the image AI in ENGLISH, or null if no image is needed." }`;
 
         const chatMessageContainerEl = document.querySelector('.chat-messages-container');
         const chatInputEl = document.getElementById('chatInput');
@@ -161,13 +127,12 @@ Now, provide the concise, single-line response in English.`;
 
         let stagedImages = []; 
         let chatHistory = [];
-        let activeImagePrompt = null; 
         let isProcessing = false;
         
         function scrollToBottom() { if (messagesEndEl) messagesEndEl.scrollIntoView({ behavior: 'smooth' }); }
         
         function startNewChat() {
-            chatHistory = []; activeImagePrompt = null; stagedImages = []; isProcessing = false;
+            chatHistory = []; stagedImages = []; isProcessing = false;
             chatMessageContainerEl.innerHTML = '<div id="messages-end" class="h-1"></div>';
             messagesEndEl = document.getElementById('messages-end');
             chatInputEl.innerHTML = ''; renderImagePills(); hideThinkingIndicator();
@@ -193,7 +158,7 @@ Now, provide the concise, single-line response in English.`;
 
         function showThinkingIndicator() { hideThinkingIndicator(); const i = `<div class="flex w-full justify-start animate-fade-in-up" id="dynamic-thinking-indicator"><div class="px-4 py-3 shadow-card bg-white rounded-lg border border-slate-200"><div class="flex items-center self-start"><span class="text-sm font-medium shimmer-black-text">thinking...</span></div></div></div>`; chatMessageContainerEl.insertBefore(document.createRange().createContextualFragment(i), messagesEndEl); scrollToBottom(); }
         function hideThinkingIndicator() { const i = document.getElementById('dynamic-thinking-indicator'); if (i) i.remove(); }
-
+        
         function renderImagePills() {
             imagePillsContainerEl.innerHTML = '';
             if (stagedImages.length > 0) {
@@ -218,7 +183,7 @@ Now, provide the concise, single-line response in English.`;
             const imagesForThisMessage = [...stagedImages];
             if ((!userMessage && imagesForThisMessage.length === 0) || isProcessing) return;
             addChatMessage(userMessage, 'user', imagesForThisMessage);
-            chatHistory.push({ role: 'user', content: userMessage });
+            chatHistory.push({ role: 'user', parts: [{ text: userMessage }] });
             chatInputEl.innerHTML = ''; stagedImages = []; renderImagePills();
             await processRequest(userMessage, imagesForThisMessage);
         }
@@ -227,27 +192,37 @@ Now, provide the concise, single-line response in English.`;
             isProcessing = true;
             showThinkingIndicator();
             try {
-                if (imagesForThisMessage.length > 0) { activeImagePrompt = null; }
-                const historyString = chatHistory.map(m => `${m.role}: ${m.content}`).join('\\n');
-                const prompt = MASTER_PROMPT.replace("{CHAT_HISTORY}", historyString).replace("{ACTIVE_IMAGE_PROMPT}", activeImagePrompt || "None").replace("{USER_MESSAGE}", userMessage);
-                const parts = [{ text: prompt }];
-                imagesForThisMessage.forEach(img => { parts.push({ inline_data: { mime_type: img.mime_type, data: img.base64.split(',')[1] } }); });
+                // *** THE NEW, "OFFICIAL" WAY TO BUILD THE CONVERSATION HISTORY ***
+                const contents = [
+                    { role: 'user', parts: [{ text: MASTER_PROMPT }] },
+                    { role: 'model', parts: [{ text: 'Theek hai. Main aapki hidayat ke mutabiq kaam karunga.' }] }, // Priming the model
+                    ...chatHistory, // The entire conversation history
+                ];
+
+                // Add any new images to the last user message
+                const lastUserContent = contents[contents.length - 1];
+                imagesForThisMessage.forEach(img => {
+                    lastUserContent.parts.push({ inline_data: { mime_type: img.mime_type, data: img.base64.split(',')[1] } });
+                });
+                
                 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MULTIMODAL_MODEL_NAME}:generateContent?key=${API_KEY}`;
-                const requestBody = { contents: [{ parts }], generationConfig: { temperature: 0.5, topP: 1, topK: 32, maxOutputTokens: 2048 } };
+                const requestBody = { contents, generationConfig: { temperature: 0.7, topP: 1, topK: 40, maxOutputTokens: 2048 } };
+                
                 const response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(requestBody) });
                 if (!response.ok) { const e = await response.json().catch(() => ({})); throw new Error(e.error?.message || `Main API request failed with status ${response.status}`); }
+                
                 const responseData = await response.json();
                 hideThinkingIndicator();
                 let rawAiResponseText = responseData.candidates[0].content.parts[0].text;
                 let aiResponse;
-                try { aiResponse = JSON.parse(rawAiResponseText.replace(/^```json\s*/, '').replace(/\s*```$/, '')); } catch (e) { aiResponse = { text_response: rawAiResponseText, image_generation_prompt: null }; }
+                try { aiResponse = JSON.parse(rawAiResponseText.replace(/^```json\s*/, '').replace(/\s*```$/, '')); } catch (e) { aiResponse = { text_response: "Mafi, mere jawab mein ek masla aa gaya hai. Kya aap dobara koshish kar sakte hain?", image_generation_prompt: null }; }
+                
                 const aiBubble = addChatMessage('', 'ai');
                 const textPara = aiBubble.querySelector('p');
-                chatHistory.push({ role: 'assistant', content: aiResponse.text_response });
+                chatHistory.push({ role: 'model', parts: [{ text: JSON.stringify(aiResponse) }] }); // Store the raw JSON response for perfect context
                 await streamText(textPara, aiResponse.text_response);
 
                 if (aiResponse.image_generation_prompt) {
-                    activeImagePrompt = aiResponse.image_generation_prompt;
                     const imageWrapper = document.createElement('div');
                     imageWrapper.className = 'mt-3 animate-fade-in-up';
                     imageWrapper.innerHTML = `<div class="p-2 text-sm text-center"><span class="font-medium shimmer-black-text">Generating...</span></div>`;
@@ -270,45 +245,22 @@ Now, provide the concise, single-line response in English.`;
                             btn.onclick = () => openDownloadPage(imageUrl);
                             imageWrapper.appendChild(btn); 
                             scrollToBottom();
-                            activeImagePrompt = null; 
-                            // *** THE FIX: Inject a hidden message into AI's memory confirming task completion. ***
-                            chatHistory.push({ role: 'assistant', content: '(Tasveer kamyabi se ban kar user ko dikha di gayi hai.)' });
                         };
-                        img.onerror = () => { imageWrapper.textContent = ''; handleImageGenerationFailure(new Error("Generated image could not be loaded."), imageWrapper, userMessage); };
+                        img.onerror = () => { imageWrapper.innerHTML = '<p class="text-sm text-red-700">Sorry, the generated image could not be loaded.</p>'; };
                     } catch (genError) {
                         console.error("Image Generation Error:", genError);
-                        activeImagePrompt = null;
-                        handleImageGenerationFailure(genError, imageWrapper, userMessage);
+                        imageWrapper.innerHTML = `<p class="text-sm text-red-700 bg-red-100 p-3 rounded-lg">Sorry, an error occurred while generating the image. Please try again.</p>`;
+                        chatHistory.push({ role: 'model', parts: [{ text: `{"text_response": "Sorry, an error occurred while generating the image.", "image_generation_prompt": null}` }] });
                     }
                 }
             } catch (error) {
                 console.error("Main Chat Error:", error);
                 hideThinkingIndicator();
-                const mainApiFailureMessage = "Sorry, a technical error occurred. Please try sending your message again.";
+                const mainApiFailureMessage = "Sorry, a critical error occurred. Please try sending your message again.";
                 addChatMessage(mainApiFailureMessage, 'ai');
-                chatHistory.push({ role: 'assistant', content: mainApiFailureMessage });
+                chatHistory.push({ role: 'model', parts: [{ text: `{"text_response": "${mainApiFailureMessage}", "image_generation_prompt": null}` }] });
             } finally {
                 isProcessing = false;
-            }
-        }
-        
-        async function handleImageGenerationFailure(error, uiElement, userMessage) {
-            uiElement.innerHTML = `<div class="p-2 text-sm text-center"><span class="font-medium shimmer-black-text">Analyzing issue...</span></div>`;
-            const errorPrompt = ERROR_ANALYSIS_PROMPT.replace("{USER_MESSAGE}", userMessage).replace("{TECHNICAL_ERROR_MESSAGE}", error.message);
-            try {
-                const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MULTIMODAL_MODEL_NAME}:generateContent?key=${API_KEY}`;
-                const requestBody = { contents: [{ parts: [{ text: errorPrompt }] }] };
-                const response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(requestBody) });
-                if (!response.ok) { const e = await response.json().catch(() => ({})); throw new Error(e.error?.message || "Failed to analyze error"); }
-                const responseData = await response.json();
-                const friendlyErrorMessage = responseData.candidates[0].content.parts[0].text;
-                uiElement.innerHTML = `<p class="text-sm text-red-700 bg-red-100 p-3 rounded-lg">${friendlyErrorMessage}</p>`;
-                chatHistory.push({ role: 'assistant', content: friendlyErrorMessage });
-            } catch (analysisError) {
-                console.error("Error analysis failed:", analysisError);
-                const fallbackMessage = "Sorry, a technical issue occurred while generating the image.";
-                uiElement.innerHTML = `<p class="text-sm text-red-700 bg-red-100 p-3 rounded-lg">${fallbackMessage}</p>`;
-                chatHistory.push({ role: 'assistant', content: fallbackMessage });
             }
         }
 
