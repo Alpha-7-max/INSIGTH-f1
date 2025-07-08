@@ -144,12 +144,10 @@
         const MAX_IMAGES_PER_MSG = 4;
         const STREAMING_SPEED_MS = 10;
         
-        // MODIFICATION: Added A4F API details for image generation
         const A4F_API_KEY = "ddc-a4f-eae251b9f298445eb27a6901f921c528";
         const A4F_API_URL = "https://api.a4f.co/v1/images/generations";
         const A4F_MODEL_NAME = "provider-1/FLUX.1-kontext-pro";
 
-        // MODIFICATION: Added new instruction block into the master prompt.
         const MASTER_PROMPT = `You are 'Insight', a genius-level, multi-modal AI assistant with persistent memory. You will receive the full CHAT_HISTORY, the LATEST_USER_MESSAGE, any NEWLY_UPLOADED_IMAGES, and crucially, the 'ACTIVE_IMAGE_PROMPT' which is the prompt that created the last image in the conversation. IMPORTANT: You must respond in Roman Urdu (Urdu written in English alphabet) for all conversational text. However, for image generation prompts, you must ALWAYS use English only. CRITICAL: Your entire output must be ONLY the JSON object and nothing else. Do not add any introductory text, apologies, or explanations outside of the JSON structure. Your response MUST be in a valid JSON format: { "text_response": "Your conversational reply to the user in Roman Urdu. This should be friendly, natural, and explain what you are doing if generating an image.", "image_generation_prompt": "If you decide to generate/edit an image, create a detailed, single-paragraph prompt for a text-to-image AI here IN ENGLISH ONLY. Otherwise, this MUST be null." } YOUR DECISION LOGIC: 1. **If NEWLY_UPLOADED_IMAGES exist:** Your top priority is these new images. The ACTIVE_IMAGE_PROMPT should be ignored. - If there is ONE new image and the user asks to edit it (e.g., 'make this girl's dress blue'), create an image prompt describing the edited scene. - If there are MULTIPLE new images, the user wants to compose a scene. Create a prompt that combines the subjects from all images as per their text instructions. - If the user just asks to analyze ("what is this?"), provide the analysis in 'text_response' and set 'image_generation_prompt' to null. 2. **If NO new images are attached, BUT 'ACTIVE_IMAGE_PROMPT' exists:** This means the user wants to modify the LAST image you showed them. - Your job is to be a PRECISION EDITOR. Surgically modify the 'ACTIVE_IMAGE_PROMPT' with the user's new instructions (e.g., change color, add an item). Do NOT change anything else. The original visual context is paramount. 3. **If NO new images AND NO 'ACTIVE_IMAGE_PROMPT':** This is a fresh conversation. - If the user's message is inherently visual ("show me a picture of Saturn"), create an 'image_generation_prompt'. - Otherwise, have a normal text-based conversation, keeping 'image_generation_prompt' as null. CHAT HISTORY (for context): {CHAT_HISTORY} ACTIVE IMAGE PROMPT (from last turn, if any): {ACTIVE_IMAGE_PROMPT} LATEST USER MESSAGE: "{USER_MESSAGE}"`;
 
         const chatMessageContainerEl = document.querySelector('.chat-messages-container');
@@ -160,7 +158,7 @@
         const imagePillsContainerEl = document.getElementById('image-pills-container');
         const chatFormEl = document.getElementById('chat-form');
         const newChatButtonEl = document.getElementById('new-chat-button');
-        let messagesEndEl = document.getElementById('messages-end'); // Use let to re-assign
+        let messagesEndEl = document.getElementById('messages-end');
 
         let stagedImages = []; 
         let chatHistory = [];
@@ -178,10 +176,8 @@
             activeImagePrompt = null;
             stagedImages = [];
             isProcessing = false;
-
             chatMessageContainerEl.innerHTML = '<div id="messages-end" class="h-1"></div>';
             messagesEndEl = document.getElementById('messages-end');
-            
             chatInputEl.innerHTML = '';
             renderImagePills();
             hideThinkingIndicator();
@@ -190,42 +186,28 @@
         function addChatMessage(message, role, images = []) {
             const messageWrapperDiv = document.createElement('div');
             messageWrapperDiv.className = `flex w-full animate-fade-in-up opacity-0 ${role === 'user' ? 'justify-end' : 'justify-start'}`;
-            
             let imageGridHTML = '';
             if (images.length > 0) {
                 imageGridHTML = `<div class="grid gap-1 mb-1.5 ${images.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}">
                     ${images.map(imgData => `<div class="rounded-lg overflow-hidden group relative max-w-full w-full"><img src="${imgData.base64}" alt="attached image" class="block w-full max-h-60 object-contain rounded-lg"></div>`).join('')}
                 </div>`;
             }
-
             const bubble = document.createElement('div');
             bubble.className = `px-4 py-3 shadow-card relative ${role === 'user' ? 'bg-surface-user-bubble-bg text-text-primary rounded-xl rounded-br-md max-w-[85%]' : 'bg-white text-text-secondary rounded-lg border border-slate-200 w-full'}`;
-            
             const textPara = document.createElement('p');
             textPara.className = 'text-base font-normal whitespace-pre-wrap break-words';
             textPara.innerHTML = message;
-
             bubble.innerHTML = imageGridHTML;
             bubble.appendChild(textPara);
-
             messageWrapperDiv.appendChild(bubble);
-            
             chatMessageContainerEl.insertBefore(messageWrapperDiv, messagesEndEl);
-
             scrollToBottom();
             return bubble;
         }
 
         function showThinkingIndicator() {
             hideThinkingIndicator();
-            const indicatorHTML = `
-                <div class="flex w-full justify-start animate-fade-in-up" id="dynamic-thinking-indicator">
-                    <div class="px-4 py-3 shadow-card bg-white rounded-lg border border-slate-200">
-                        <div class="flex items-center self-start">
-                            <span class="text-sm font-medium shimmer-black-text">thinking...</span>
-                        </div>
-                    </div>
-                </div>`;
+            const indicatorHTML = `<div class="flex w-full justify-start animate-fade-in-up" id="dynamic-thinking-indicator"><div class="px-4 py-3 shadow-card bg-white rounded-lg border border-slate-200"><div class="flex items-center self-start"><span class="text-sm font-medium shimmer-black-text">thinking...</span></div></div></div>`;
             chatMessageContainerEl.insertBefore(document.createRange().createContextualFragment(indicatorHTML), messagesEndEl);
             scrollToBottom();
         }
@@ -244,17 +226,11 @@
                 imagePillsContainerEl.classList.remove('image-preview-container-input');
                 return;
             }
-
             imagePillsContainerEl.innerHTML = '';
             stagedImages.forEach((imgData, index) => {
                 const pill = document.createElement('div');
                 pill.className = 'relative w-14 h-14 rounded-md overflow-hidden shadow-sm group border border-gray-200';
-                pill.innerHTML = `
-                    <img src="${imgData.base64}" alt="${imgData.name}" class="w-full h-full object-cover">
-                    <button type="button" data-index="${index}" class="remove-pill absolute top-0.5 right-0.5 w-5 h-5 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center transition-opacity focus:outline-none">
-                        <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 24 24" class="w-3 h-3" fill="currentColor"><path d="M13.414,12l6.293-6.293c0.391-0.391,0.391-1.023,0-1.414s-1.023-0.391-1.414,0L12,10.586L5.707,4.293 c-0.391-0.391-1.023-0.391-1.414,0s-0.391,1.023,0,1.414L10.586,12l-6.293,6.293c-0.391,0.391-0.391,1.023,0,1.414 C4.488,19.902,4.744,20,5,20s0.512-0.098,0.707-0.293L12,13.414l6.293,6.293C18.488,19.902,18.744,20,19,20s0.512-0.098,0.707-0.293 c0.391-0.391,0.391-1.023,0-1.414L13.414,12z"/></svg>
-                    </button>
-                `;
+                pill.innerHTML = `<img src="${imgData.base64}" alt="${imgData.name}" class="w-full h-full object-cover"><button type="button" data-index="${index}" class="remove-pill absolute top-0.5 right-0.5 w-5 h-5 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center transition-opacity focus:outline-none"><svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 24 24" class="w-3 h-3" fill="currentColor"><path d="M13.414,12l6.293-6.293c0.391-0.391,0.391-1.023,0-1.414s-1.023-0.391-1.414,0L12,10.586L5.707,4.293 c-0.391-0.391-1.023-0.391-1.414,0s-0.391,1.023,0,1.414L10.586,12l-6.293,6.293c-0.391,0.391-0.391,1.023,0,1.414 C4.488,19.902,4.744,20,5,20s0.512-0.098,0.707-0.293L12,13.414l6.293,6.293C18.488,19.902,18.744,20,19,20s0.512-0.098,0.707-0.293 c0.391-0.391,0.391-1.023,0-1.414L13.414,12z"/></svg></button>`;
                 imagePillsContainerEl.appendChild(pill);
             });
             imagePillsContainerEl.querySelectorAll('.remove-pill').forEach(btn => {
@@ -282,25 +258,12 @@
             });
         }
 
-        async function openDownloadPage(imageUrl, prompt, buttonElement) {
-            buttonElement.innerHTML = `<i class="fas fa-spinner fa-spin-fast mr-2"></i>Preparing...`;
-            buttonElement.disabled = true;
-            try {
-                const response = await fetch(imageUrl);
-                if (!response.ok) throw new Error('Failed to fetch image data.');
-                const imageBlob = await response.blob();
-                const localImageUrl = URL.createObjectURL(imageBlob);
-                const downloadPageHtml = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Download Image</title><style>body { margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; background-color: #f3f4f6; color: #1f2937; font-family: sans-serif; padding: 20px; box-sizing: border-box; text-align: center; } img { max-width: 90%; max-height: 70vh; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); } .download-btn { display: inline-block; margin-top: 24px; padding: 12px 24px; background-color: #4f46e5; color: white; text-decoration: none; font-weight: bold; border-radius: 8px; transition: background-color 0.2s; } .download-btn:hover { background-color: #4338ca; } .info { margin-top: 12px; font-size: 0.9em; color: #4b5563; }</style></head><body><h1>Image Preview & Download</h1><img src="${localImageUrl}" alt="AI Generated Image: ${prompt}"><a href="${localImageUrl}" download="insight-generated-image.png" class="download-btn">Download Image</a><p class="info">If the button doesn't work, try long-pressing the image and selecting 'Download' or 'Save'.</p></body></html>`;
-                const pageBlob = new Blob([downloadPageHtml], { type: 'text/html' });
-                const pageBlobUrl = URL.createObjectURL(pageBlob);
-                window.open(pageBlobUrl, '_blank');
-            } catch (error) {
-                console.error("Download preparation failed:", error);
-                alert("Could not prepare the image for download. Please try again.");
-            } finally {
-                buttonElement.innerHTML = `<i class="fas fa-external-link-alt mr-2"></i>Open & Save`;
-                buttonElement.disabled = false;
-            }
+        // *** MODIFIED FUNCTION FOR WEBVIEW COMPATIBILITY ***
+        async function openDownloadPage(imageUrl) {
+            // Directly open the original image URL from the AI server.
+            // This is a standard https:// link that WebViews can hand off to an external browser like Chrome.
+            // The user can then long-press the image in their browser to save it.
+            window.open(imageUrl, '_blank');
         }
 
         async function handleChatSubmit() {
@@ -365,12 +328,7 @@
                                 "Content-Type": "application/json",
                                 "Authorization": `Bearer ${A4F_API_KEY}`
                             },
-                            body: JSON.stringify({
-                                model: A4F_MODEL_NAME,
-                                prompt: aiResponse.image_generation_prompt,
-                                n: 1,
-                                size: "1024x1024"
-                            })
+                            body: JSON.stringify({ model: A4F_MODEL_NAME, prompt: aiResponse.image_generation_prompt, n: 1, size: "1024x1024" })
                         });
 
                         if (!imageGenResponse.ok) {
@@ -381,9 +339,7 @@
                         const imageData = await imageGenResponse.json();
                         const imageUrl = imageData.data && imageData.data[0] ? imageData.data[0].url : null;
 
-                        if (!imageUrl) {
-                            throw new Error("Image URL not found in API response.");
-                        }
+                        if (!imageUrl) { throw new Error("Image URL not found in API response."); }
 
                         const img = document.createElement('img');
                         img.src = imageUrl;
@@ -395,7 +351,8 @@
                             const openPageButton = document.createElement('button');
                             openPageButton.className = 'block w-full text-center mt-2 text-indigo-700 text-sm font-semibold bg-indigo-100 hover:bg-indigo-200 py-1.5 rounded-md transition-colors';
                             openPageButton.innerHTML = `<i class="fas fa-external-link-alt mr-2"></i>Open & Save`;
-                            openPageButton.onclick = () => openDownloadPage(imageUrl, aiResponse.image_generation_prompt, openPageButton);
+                            // *** MODIFIED ONCLICK CALL ***
+                            openPageButton.onclick = () => openDownloadPage(imageUrl);
                             imageWrapper.appendChild(openPageButton);
                             scrollToBottom();
                         };
