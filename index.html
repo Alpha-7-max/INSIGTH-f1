@@ -111,6 +111,8 @@
         const MASTER_PROMPT = `You are 'Insight', a genius-level, multi-modal AI assistant with persistent memory. You will receive the full CHAT_HISTORY, the LATEST_USER_MESSAGE, any NEWLY_UPLOADED_IMAGES, and crucially, the 'ACTIVE_IMAGE_PROMPT' which is the prompt that created the last image in the conversation. IMPORTANT: You must respond in Roman Urdu (Urdu written in English alphabet) for all conversational text. However, for image generation prompts, you must ALWAYS use English only. CRITICAL: Your entire output must be ONLY the JSON object and nothing else. Do not add any introductory text, apologies, or explanations outside of the JSON structure. Your response MUST be in a valid JSON format: { "text_response": "Your conversational reply to the user in Roman Urdu. This should be friendly, natural, and explain what you are doing if generating an image.", "image_generation_prompt": "If you decide to generate/edit an image, create a detailed, single-paragraph prompt for a text-to-image AI here IN ENGLISH ONLY. Otherwise, this MUST be null." } 
 
 YOUR DECISION LOGIC (in order of priority):
+0.  **[CRITICAL CONTEXT RULE]:** If the last message in the chat history is a system note like \`(Tasveer kamyabi se ban kar user ko dikha di gayi hai.)\`, it means your previous image generation task is COMPLETE. The user's new message is a fresh, new turn. You MUST NOT try to generate or edit the previous image. Treat their new message as a normal conversational follow-up (e.g., a compliment, a new question, etc.) and do not generate an image unless they explicitly ask for a new one.
+
 1.  **IF THE LAST ASSISTANT MESSAGE WAS AN IMAGE GENERATION FAILURE** (e.g., contains "Sorry, I cannot create", "technical issue"): This is your highest priority. The user is likely asking you to try again. Your job is to be a CREATIVE PROBLEM SOLVER, not to repeat your failure.
     - **Analyze** the user's original request that failed from the CHAT_HISTORY.
     - **Identify** the likely problematic keyword (e.g., a copyrighted character name like 'Goku').
@@ -266,7 +268,11 @@ Now, provide the concise, single-line response in English.`;
                             btn.className = 'block w-full text-center mt-2 text-indigo-700 text-sm font-semibold bg-indigo-100 hover:bg-indigo-200 py-1.5 rounded-md transition-colors';
                             btn.innerHTML = `<i class="fas fa-external-link-alt mr-2"></i>Open & Save`;
                             btn.onclick = () => openDownloadPage(imageUrl);
-                            imageWrapper.appendChild(btn); scrollToBottom();
+                            imageWrapper.appendChild(btn); 
+                            scrollToBottom();
+                            activeImagePrompt = null; 
+                            // *** THE FIX: Inject a hidden message into AI's memory confirming task completion. ***
+                            chatHistory.push({ role: 'assistant', content: '(Tasveer kamyabi se ban kar user ko dikha di gayi hai.)' });
                         };
                         img.onerror = () => { imageWrapper.textContent = ''; handleImageGenerationFailure(new Error("Generated image could not be loaded."), imageWrapper, userMessage); };
                     } catch (genError) {
@@ -306,7 +312,6 @@ Now, provide the concise, single-line response in English.`;
             }
         }
 
-        // *** THE FIX IS HERE ***
         function handleFileSelection(files) { 
             if (!files) return; 
             for (const file of files) { 
@@ -319,7 +324,6 @@ Now, provide the concise, single-line response in English.`;
                 }; 
                 reader.readAsDataURL(file); 
             }
-            // Reset the input value after processing. This allows selecting the same file again.
             imageInputEl.value = null;
         }
 
