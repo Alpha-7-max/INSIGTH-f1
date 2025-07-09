@@ -77,7 +77,6 @@
         .chat-messages-container { scrollbar-width: none; }
       }
       @layer components {
-        /* MODIFICATION: New cool-toned gradient without any yellow or green. */
         .shimmer-gradient-text {
           @apply bg-clip-text text-transparent animate-shimmer-animation;
           background-image: linear-gradient(100deg, #8b5cf6, #ec4899, #3b82f6, #8b5cf6);
@@ -132,14 +131,12 @@
         let stagedImages = []; 
         let chatHistory = [];
         let isProcessing = false;
-        // MODIFICATION: Add a global tracker for the last regenerate button container
         let lastRegenerateControlContainer = null;
         
         function scrollToBottom() { if (messagesEndEl) messagesEndEl.scrollIntoView({ behavior: 'smooth' }); }
         
         function startNewChat() {
             chatHistory = []; stagedImages = []; isProcessing = false;
-            // MODIFICATION: Reset the tracker on new chat
             lastRegenerateControlContainer = null;
             chatMessageContainerEl.innerHTML = '<div id="messages-end" class="h-1"></div>';
             messagesEndEl = document.getElementById('messages-end');
@@ -166,8 +163,6 @@
             bubble.appendChild(para);
 
             if (role === 'ai') {
-                // MODIFICATION: New logic to manage the regenerate button
-                // 1. If a previous regenerate button exists, remove it.
                 if (lastRegenerateControlContainer) {
                     lastRegenerateControlContainer.remove();
                 }
@@ -181,9 +176,7 @@
                 controls.innerHTML = `<button onclick="handleRegenerate(${messageIndex})" title="Regenerate Response" class="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-indigo-500 bg-white/80 hover:bg-gray-100 rounded-full transition-all duration-150 backdrop-blur-sm border border-gray-200/80 shadow-sm"><i class="fas fa-sync-alt text-xs"></i></button>`;
                 aiContentContainer.appendChild(controls);
 
-                // 2. Update the global tracker to point to the NEW button container.
                 lastRegenerateControlContainer = controls;
-                
                 wrapper.appendChild(aiContentContainer);
             } else {
                 bubble.classList.add('max-w-[85%]');
@@ -219,7 +212,6 @@
             }
             const userTurn = chatHistory[userTurnIndex];
             
-            // When regenerating, remove the button's container from the DOM and reset the tracker
             if(lastRegenerateControlContainer) {
                 lastRegenerateControlContainer.remove();
                 lastRegenerateControlContainer = null;
@@ -292,6 +284,7 @@
             }
         }
         
+        // MODIFICATION: The catch block now shows the specific error message from the API.
         async function generateImageAndDisplay(imageWrapper, prompt) {
             try {
                 const imageGenResponse = await fetch(A4F_API_URL, { method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${A4F_API_KEY}` }, body: JSON.stringify({ model: A4F_MODEL_NAME, prompt: prompt, n: 1, size: "1024x1024" }) });
@@ -314,7 +307,7 @@
                 img.onerror = () => { imageWrapper.innerHTML = '<p class="text-sm text-red-700">Sorry, the generated image could not be loaded.</p>'; };
             } catch (genError) {
                 console.error("Image Generation Error:", genError);
-                imageWrapper.innerHTML = `<p class="text-sm text-red-700 bg-red-100 p-3 rounded-lg">Sorry, an error occurred while generating the image. Please try again.</p>`;
+                imageWrapper.innerHTML = `<p class="text-sm text-red-700 bg-red-100 p-3 rounded-lg"><b>Image Gen Error:</b> ${genError.message}</p>`;
             }
         }
 
