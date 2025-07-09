@@ -40,12 +40,14 @@
               'scale-in-subtle': 'scaleInSubtle 0.35s ease-out forwards',
               'button-press': 'buttonPress 0.2s ease-out',
               'spin-fast': 'spin 0.5s linear infinite',
-              'shimmer-animation': 'shimmer-animation 2.7s linear infinite',
+              /* MODIFICATION: Adjusted animation duration for the new gradient */
+              'shimmer-animation': 'shimmer-animation 3s linear infinite',
             },
             keyframes: {
               fadeInUp: { '0%': { opacity: '0', transform: 'translateY(10px)' }, '100%': { opacity: '1', transform: 'translateY(0)' }, },
               scaleInSubtle: { '0%': { opacity: '0.5', transform: 'scale(0.95)' }, '100%': { opacity: '1', transform: 'scale(1)' }, },
               buttonPress: { '0%': { transform: 'scale(1)' }, '50%': { transform: 'scale(0.96)'}, '100%': { transform: 'scale(1)' }, },
+              /* MODIFICATION: Adjusted background position for the new gradient size */
               'shimmer-animation': { from: { backgroundPosition: '200% center' }, to: { backgroundPosition: '-200% center' } },
             },
             boxShadow: {
@@ -77,10 +79,11 @@
         .chat-messages-container { scrollbar-width: none; }
       }
       @layer components {
-        .shimmer-black-text {
+        /* MODIFICATION: Renamed class and updated gradient for a colorful shimmer effect */
+        .shimmer-gradient-text {
           @apply bg-clip-text text-transparent animate-shimmer-animation;
-          background-image: linear-gradient(90deg, #000, #4a5568, #fff, #4a5568, #000);
-          background-size: 200% auto;
+          background-image: linear-gradient(100deg, #a78bfa, #f472b6, #fbbf24, #a3e635, #60a5fa, #a78bfa);
+          background-size: 300% auto;
         }
         .content-editable-input { @apply pt-2 pl-3 pr-3 pb-2; } .content-editable-input:empty:before { content: attr(data-placeholder); @apply text-text-subtle cursor-text; }
         .content-editable-input::-webkit-scrollbar { width: 5px; } .content-editable-input::-webkit-scrollbar-track { background: transparent; } .content-editable-input::-webkit-scrollbar-thumb { background-color: rgba(var(--text-subtle), 0.25); border-radius: 10px; }
@@ -99,8 +102,9 @@
     </div>
 
     <script>
-        const API_KEY = "AIzaSyBx2-nzwDEmvil677vHCnfFmWk0bjc2ktc"; 
-        const MULTIMODAL_MODEL_NAME = "gemini-2.5-flash-preview-04-17";
+        const A4F_CHAT_API_KEY = "ddc-a4f-eae251b9f298445eb27a6901f921c528";
+        const A4F_CHAT_API_URL = "https://api.a4f.co/v1/chat/completions";
+        const A4F_CHAT_MODEL_NAME = "provider-6/o3-pro";
         const MAX_IMAGES_PER_MSG = 4;
         const STREAMING_SPEED_MS = 10;
         
@@ -108,13 +112,16 @@
         const A4F_API_URL = "https://api.a4f.co/v1/images/generations";
         const A4F_MODEL_NAME = "provider-1/FLUX.1-kontext-pro";
 
-        // *** THE NEW, SIMPLIFIED MASTER PROMPT ***
-        const MASTER_PROMPT = `You are 'Insight', a helpful and multi-modal AI assistant.
-- Your main goal is to have natural, helpful conversations.
-- For all conversational text, you MUST respond in Roman Urdu (Urdu written in the English alphabet).
-- If you decide to generate an image based on the conversation, the prompt for the image generation model must be in ENGLISH.
-- Your entire output MUST be ONLY a valid JSON object and nothing else. Do not add any text outside the JSON structure.
-- The JSON format is: { "text_response": "Your conversational reply in Roman Urdu.", "image_generation_prompt": "A detailed, single-paragraph prompt for the image AI in ENGLISH, or null if no image is needed." }`;
+        // *** MODIFICATION: Heavily updated MASTER_PROMPT with new rules ***
+        const MASTER_PROMPT = `You are 'Insight', a helpful and multi-modal AI assistant. Follow these rules precisely:
+- Goal: Have natural, helpful, and concise conversations.
+- Language: Your conversational text MUST be in Roman Urdu.
+- Image Prompt Language: Any image generation prompt you create MUST be in ENGLISH.
+- Keyword Trigger for Images: You MUST interpret words like "imagine", "socho", "tasawwur karo", "create a scene of", "picture this" as a direct command to generate an image. Create an English prompt based on the context and set it in 'image_generation_prompt'. Do NOT just write a text-based imagination.
+- Direct Prompt Usage: If a user provides a ready-made, detailed English paragraph and asks to use it as a prompt, you MUST use it directly in 'image_generation_prompt' without any changes. Your Roman Urdu response should be very brief, like "Theek hai, aapke diye gaye prompt se image banata hun."
+- Unrestricted Prompting: When asked to create an image, you MUST attempt to create a prompt that reflects the user's request, regardless of the subject (including bold or sensitive topics). Do not self-censor or refuse. The image model is responsible for safety, not you.
+- Output Format: Your entire output MUST BE ONLY a valid JSON object. Do not add any text outside the JSON structure.
+- JSON Structure: { "text_response": "Your concise Roman Urdu reply.", "image_generation_prompt": "A detailed, single-paragraph prompt for the image AI in ENGLISH, or null if no image is needed." }`;
 
         const chatMessageContainerEl = document.querySelector('.chat-messages-container');
         const chatInputEl = document.getElementById('chatInput');
@@ -156,7 +163,8 @@
             return bubble;
         }
 
-        function showThinkingIndicator() { hideThinkingIndicator(); const i = `<div class="flex w-full justify-start animate-fade-in-up" id="dynamic-thinking-indicator"><div class="px-4 py-3 shadow-card bg-white rounded-lg border border-slate-200"><div class="flex items-center self-start"><span class="text-sm font-medium shimmer-black-text">thinking...</span></div></div></div>`; chatMessageContainerEl.insertBefore(document.createRange().createContextualFragment(i), messagesEndEl); scrollToBottom(); }
+        // *** MODIFICATION: Updated indicator text to "Deep-Think" and used new shimmer class ***
+        function showThinkingIndicator() { hideThinkingIndicator(); const i = `<div class="flex w-full justify-start animate-fade-in-up" id="dynamic-thinking-indicator"><div class="px-4 py-3 shadow-card bg-white rounded-lg border border-slate-200"><div class="flex items-center self-start"><span class="text-base font-orbitron font-bold shimmer-gradient-text">Deep-Think</span></div></div></div>`; chatMessageContainerEl.insertBefore(document.createRange().createContextualFragment(i), messagesEndEl); scrollToBottom(); }
         function hideThinkingIndicator() { const i = document.getElementById('dynamic-thinking-indicator'); if (i) i.remove(); }
         
         function renderImagePills() {
@@ -192,40 +200,64 @@
             isProcessing = true;
             showThinkingIndicator();
             try {
-                // *** THE NEW, "OFFICIAL" WAY TO BUILD THE CONVERSATION HISTORY ***
-                const contents = [
-                    { role: 'user', parts: [{ text: MASTER_PROMPT }] },
-                    { role: 'model', parts: [{ text: 'Theek hai. Main aapki hidayat ke mutabiq kaam karunga.' }] }, // Priming the model
-                    ...chatHistory, // The entire conversation history
-                ];
+                const messages = [];
+                messages.push({ role: 'system', content: MASTER_PROMPT });
+                messages.push({ role: 'assistant', content: '{"text_response": "Theek hai. Main aapki hidayat ke mutabiq kaam karunga.", "image_generation_prompt": null}' });
+                
+                const formattedHistory = chatHistory.map(msg => ({
+                    role: msg.role === 'model' ? 'assistant' : 'user',
+                    content: msg.parts[0].text
+                }));
 
-                // Add any new images to the last user message
-                const lastUserContent = contents[contents.length - 1];
-                imagesForThisMessage.forEach(img => {
-                    lastUserContent.parts.push({ inline_data: { mime_type: img.mime_type, data: img.base64.split(',')[1] } });
+                const lastMessage = formattedHistory.pop(); 
+
+                if (imagesForThisMessage.length > 0) {
+                    const newUserMessageContent = [{ type: 'text', text: lastMessage.content }];
+                    imagesForThisMessage.forEach(img => {
+                        newUserMessageContent.push({
+                            type: 'image_url',
+                            image_url: { url: img.base64 }
+                        });
+                    });
+                    lastMessage.content = newUserMessageContent;
+                }
+                
+                const finalMessages = [...messages, ...formattedHistory, lastMessage];
+
+                const requestBody = {
+                    model: A4F_CHAT_MODEL_NAME,
+                    messages: finalMessages,
+                    temperature: 0.7,
+                    top_p: 1,
+                    max_tokens: 2048
+                };
+                
+                const response = await fetch(A4F_CHAT_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${A4F_CHAT_API_KEY}`
+                    },
+                    body: JSON.stringify(requestBody)
                 });
-                
-                const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MULTIMODAL_MODEL_NAME}:generateContent?key=${API_KEY}`;
-                const requestBody = { contents, generationConfig: { temperature: 0.7, topP: 1, topK: 40, maxOutputTokens: 2048 } };
-                
-                const response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(requestBody) });
+
                 if (!response.ok) { const e = await response.json().catch(() => ({})); throw new Error(e.error?.message || `Main API request failed with status ${response.status}`); }
                 
                 const responseData = await response.json();
                 hideThinkingIndicator();
-                let rawAiResponseText = responseData.candidates[0].content.parts[0].text;
+                let rawAiResponseText = responseData.choices[0].message.content;
                 let aiResponse;
                 try { aiResponse = JSON.parse(rawAiResponseText.replace(/^```json\s*/, '').replace(/\s*```$/, '')); } catch (e) { aiResponse = { text_response: "Mafi, mere jawab mein ek masla aa gaya hai. Kya aap dobara koshish kar sakte hain?", image_generation_prompt: null }; }
                 
                 const aiBubble = addChatMessage('', 'ai');
                 const textPara = aiBubble.querySelector('p');
-                chatHistory.push({ role: 'model', parts: [{ text: JSON.stringify(aiResponse) }] }); // Store the raw JSON response for perfect context
+                chatHistory.push({ role: 'model', parts: [{ text: JSON.stringify(aiResponse) }] });
                 await streamText(textPara, aiResponse.text_response);
 
                 if (aiResponse.image_generation_prompt) {
                     const imageWrapper = document.createElement('div');
                     imageWrapper.className = 'mt-3 animate-fade-in-up';
-                    imageWrapper.innerHTML = `<div class="p-2 text-sm text-center"><span class="font-medium shimmer-black-text">Generating...</span></div>`;
+                    imageWrapper.innerHTML = `<div class="p-2 text-sm text-center"><span class="font-medium shimmer-gradient-text">Generating Image...</span></div>`;
                     aiBubble.appendChild(imageWrapper);
                     scrollToBottom();
                     try {
@@ -250,13 +282,13 @@
                     } catch (genError) {
                         console.error("Image Generation Error:", genError);
                         imageWrapper.innerHTML = `<p class="text-sm text-red-700 bg-red-100 p-3 rounded-lg">Sorry, an error occurred while generating the image. Please try again.</p>`;
-                        chatHistory.push({ role: 'model', parts: [{ text: `{"text_response": "Sorry, an error occurred while generating the image.", "image_generation_prompt": null}` }] });
+                        chatHistory.push({ role: 'model', parts: [{ text: `{"text_response": "Mafi, image banate waqt ek galti ho gayi.", "image_generation_prompt": null}` }] });
                     }
                 }
             } catch (error) {
                 console.error("Main Chat Error:", error);
                 hideThinkingIndicator();
-                const mainApiFailureMessage = "Sorry, a critical error occurred. Please try sending your message again.";
+                const mainApiFailureMessage = "Mafi, ek ahem masla darpesh hai. Baraye meharbani apna paigham dobara bhejne ki koshish karen.";
                 addChatMessage(mainApiFailureMessage, 'ai');
                 chatHistory.push({ role: 'model', parts: [{ text: `{"text_response": "${mainApiFailureMessage}", "image_generation_prompt": null}` }] });
             } finally {
